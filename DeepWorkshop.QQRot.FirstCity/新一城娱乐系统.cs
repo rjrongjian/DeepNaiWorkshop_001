@@ -26,7 +26,8 @@ namespace WindowsFormsApplication4
         public static string ShouQuanServer = "http://193.112.91.139";
 
         private WebWeChat _qrWebWeChat = null;
-        public GROUP _group = null;
+        public GroupInfo _group = null;
+        //public GROUP _group = null;
         private guize _guiZe = new guize();
 
         private int _chengYuanShuLiang = 0;
@@ -115,6 +116,7 @@ namespace WindowsFormsApplication4
         {
             get { return _isFeiPan; }
         }
+        /*
         public Form1(WebWeChat webchat, GROUP qz, string title)
         {
             InitializeComponent();
@@ -148,9 +150,10 @@ namespace WindowsFormsApplication4
             }
             this.Text = title;
             label8.Text = "当前操作群：" + qz.NickName;
-            _group = qz;
-            _qrWebWeChat = webchat;
+            //_group = qz;
+            //_qrWebWeChat = webchat;
             Control.CheckForIllegalCrossThreadCalls = false;
+            //监听到了群消息来了
             _qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
             状态栏.Text = "单击启动监听开始获取群消息！";
 
@@ -158,13 +161,13 @@ namespace WindowsFormsApplication4
             _dgvThread = new Thread(dgv2);
             _dgvThread.Start();
             // GamePlayer
-            timer1.Start();
-            timer2.Start();
+            timer1.Start();//
+            timer2.Start();//测试网速 测试的是微信的可能要改
 
             //更新记录期号加载
             DateTime time1 = DateTime.Now.Date;
             DateTime time2 = time1.AddDays(1);
-            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + _group.seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
+            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
             foreach (DataRow dr in deset.Rows)
             {
                 comboBox5.Items.Add(dr[0].ToString());
@@ -214,7 +217,7 @@ namespace WindowsFormsApplication4
             MainPlugin.frmMain = this;
 
         }
-
+        */
         public Form1( GroupInfo qz, string title)
         {
             InitializeComponent();
@@ -249,22 +252,22 @@ namespace WindowsFormsApplication4
             this.Text = title;
             label8.Text = "当前操作群：" + qz.GroupName;
             _group = qz;
-            _qrWebWeChat = webchat;
+            //_qrWebWeChat = webchat;
             Control.CheckForIllegalCrossThreadCalls = false;
             _qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
             状态栏.Text = "单击启动监听开始获取群消息！";
 
             //_group.MemberList = _qrWebWeChat.GETgrouplist(_group.DATAlist, _group.URLlist);
-            _dgvThread = new Thread(dgv2);
+            _dgvThread = new Thread(dgv2);//获取群成员列表
             _dgvThread.Start();
             // GamePlayer
-            timer1.Start();
-            timer2.Start();
+            timer1.Start();//开奖倒计时
+            timer2.Start();//测试网速
 
             //更新记录期号加载
             DateTime time1 = DateTime.Now.Date;
             DateTime time2 = time1.AddDays(1);
-            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + _group.seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
+            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
             foreach (DataRow dr in deset.Rows)
             {
                 comboBox5.Items.Add(dr[0].ToString());
@@ -320,6 +323,7 @@ namespace WindowsFormsApplication4
         //群成员列表
         public void dgv2()
         {
+            /*
             lvChengYuanJiFen.Items.Clear();
             if (_qrWebWeChat.grox == null) return;
             DataTable dt = SQL.SELECTdata("", " Friends_" + _group.seq);
@@ -394,6 +398,7 @@ namespace WindowsFormsApplication4
                 _chengYuanShuLiang++;
             }
             label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
+            */
         }
 
         /// <summary>
@@ -404,6 +409,7 @@ namespace WindowsFormsApplication4
         /// <param name="Offline"></param>
         private void MessageArrival(string retcode, string selector, JObject Offline)
         {
+            
             if (_offLine == Offline.ToString())
             {
                 return;
@@ -467,11 +473,12 @@ namespace WindowsFormsApplication4
                 //告诉服务器  我收到了消息
                 _qrWebWeChat.huidiao(ToUserName, FromUserName);
             }
+            
         }
 
         private void xxcl(string conter, GROUP gr, string msgid)
         {
-
+            /*
             if (conter.IndexOf("上") == 0 || conter.IndexOf("下") == 0 || conter.IndexOf("回") == 0)
             {
                 playPointSound();
@@ -697,6 +704,7 @@ namespace WindowsFormsApplication4
                     jzxx(_group, "@" + gr.NickName + "不满足攻击条件", send("@" + gr.NickName + "不满足攻击条件", _group.UserName));
                 }
             }
+            */
         }
 
         /// <summary>
@@ -755,7 +763,7 @@ namespace WindowsFormsApplication4
 
         private int xiazhu(string[] contstring, GROUP gr)
         {
-
+            /*
             xztj lsxz = new xztj();
             try
             {
@@ -1262,6 +1270,9 @@ namespace WindowsFormsApplication4
                     jzxx(_group, "@" + gr.NickName + " 攻击格式错误！", msgid);
                 return 3;
             }
+            */
+            //自己添加
+            return 0;
         }
 
         /// <summary>
@@ -1289,7 +1300,7 @@ namespace WindowsFormsApplication4
             zcs.Add(zcs3);
             try
             {
-                SQL.INSERT(zcs, " liaotian_" + _group.seq);
+                SQL.INSERT(zcs, " liaotian_" + CacheData.Seq);
             }
             catch (Exception ex) { }
         }
@@ -1302,6 +1313,7 @@ namespace WindowsFormsApplication4
         /// <returns></returns>
         private string send(string msg, string UserName)
         {
+            /*
             //
             if (ServerCommon.isLogWechat)
             {
@@ -1311,15 +1323,19 @@ namespace WindowsFormsApplication4
             //
             string xx = _qrWebWeChat.SendMessage(msg, UserName);
             return function.middlestring(xx, "MsgID\": \"", "\"");
+            */
+            //自己添加
+            return "";
         }
 
         /// <summary>
-        /// 获取成员
+        /// 获取群成员
         /// </summary>
         /// <param name="UserName"></param>
         /// <returns></returns>
         private GROUP getname(string UserName)
         {
+            /*
             foreach (GROUP Item in _group.MemberList)
             {
                 if (Item.UserName == UserName)
@@ -1327,12 +1343,15 @@ namespace WindowsFormsApplication4
                     return Item;
                 }
             }
+            */
             return null;
+            
         }
 
         //发图发字
         private void fatu(object sender, EventArgs e)
         {
+            /*
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Multiselect = false;
             fileDialog.Title = "请选择文件";
@@ -1360,16 +1379,19 @@ namespace WindowsFormsApplication4
                     jzxx(_group, "[图片]", msgid);
             }
             // _qrWebWeChat.jiaqun(username, listView2.CheckedItems[i].SubItems[1].Text);
+            */
         }
 
         private void button14_Click(object sender, EventArgs e)
         {
+            /*
             if (textBox9.Text == "")
                 return;
             string msgid = send(textBox9.Text, _group.UserName);
             if (msgid != "")
                 jzxx(_group, textBox9.Text, msgid);
             textBox9.Text = "";
+            */
         }
 
         /// <summary>
@@ -1436,7 +1458,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
-
+            /*
             //
             string q = "";
             DateTime dtNow = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -1749,6 +1771,7 @@ namespace WindowsFormsApplication4
 
                 #endregion 开奖
             }
+            */
         }
 
 
@@ -1850,7 +1873,7 @@ namespace WindowsFormsApplication4
         private string jieSuan()
         {
 
-
+            /*
             string zjxx = "";
             string strzd = "";
             //
@@ -2241,6 +2264,9 @@ namespace WindowsFormsApplication4
 
 
             return zjxx + "||||||" + strzd;
+            */
+            //自己添加
+            return null;
         }
 
         /// <summary>
@@ -2263,10 +2289,12 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
+            /*
             if (checkBox2.Checked)
             {
                 new 报盘(_group).Show();
             }
+            */
         }
 
         /// <summary>
@@ -2276,7 +2304,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button3_Click(object sender, EventArgs e)
         {
-            new 报表(_group.seq, textBox23.Text).Show();
+            new 报表(CacheData.Seq, textBox23.Text).Show();
         }
 
         /// <summary>
@@ -2286,6 +2314,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button8_Click(object sender, EventArgs e)
         {
+            /*
             string rj = "否";
             string Val = "";
             if (checkBox12.Checked)
@@ -2331,6 +2360,7 @@ namespace WindowsFormsApplication4
                 string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where " + where, Val);
                 SQLiteHelper.ExecuteNonQuery(delStr);
             }
+            */
         }
 
         /// <summary>
@@ -2340,6 +2370,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button12_Click(object sender, EventArgs e)
         {
+            /*
             DialogResult d = MessageBox.Show("更新纪录？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2380,6 +2411,7 @@ namespace WindowsFormsApplication4
                     // listView2.CheckedItems[i].Remove();
                 }
             }
+            */
         }
 
         /// <summary>
@@ -2389,6 +2421,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button16_Click(object sender, EventArgs e)
         {
+            /*
             DialogResult d = MessageBox.Show("同意上分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2421,6 +2454,7 @@ namespace WindowsFormsApplication4
             {
                 jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
             }
+            */
         }
 
         /// <summary>
@@ -2430,6 +2464,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button17_Click(object sender, EventArgs e)
         {
+            /*
             DialogResult d = MessageBox.Show("拒绝上分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2449,6 +2484,7 @@ namespace WindowsFormsApplication4
             {
                 jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
             }
+            */
         }
 
         /// <summary>
@@ -2458,6 +2494,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button19_Click(object sender, EventArgs e)
         {
+            /*
             DialogResult d = MessageBox.Show("同意下分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2489,11 +2526,12 @@ namespace WindowsFormsApplication4
             {
                 jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
             }
+            */
         }
 
         private void lvChengYuanJiFen_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            new 流水明细(getname(lvChengYuanJiFen.SelectedItems[0].SubItems[2].Text), _group.seq).Show();
+            new 流水明细(getname(lvChengYuanJiFen.SelectedItems[0].SubItems[2].Text), CacheData.Seq).Show();
         }
 
         /// <summary>
@@ -2503,6 +2541,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button18_Click(object sender, EventArgs e)
         {
+            /*
             DialogResult d = MessageBox.Show("拒绝下分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2522,6 +2561,7 @@ namespace WindowsFormsApplication4
             {
                 jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
             }
+            */
         }
 
         bool isShowServerExpire = false;
@@ -2602,10 +2642,10 @@ namespace WindowsFormsApplication4
             DialogResult d = MessageBox.Show("清空除玩家积分外的所有数据？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
-            SQL.delete("kaijiang_" + _group.seq);
-            SQL.delete("liaotian_" + _group.seq);
-            SQL.delete("liushui_" + _group.seq);
-            SQL.delete("NameInt_" + _group.seq);
+            SQL.delete("kaijiang_" + CacheData.Seq);
+            SQL.delete("liaotian_" + CacheData.Seq);
+            SQL.delete("liushui_" + CacheData.Seq);
+            SQL.delete("NameInt_" + CacheData.Seq);
             MessageBox.Show("清除完毕！");
         }
 
@@ -2623,7 +2663,9 @@ namespace WindowsFormsApplication4
         public static Encoding _encoding = System.Text.Encoding.GetEncoding("GB2312");
         private string sszhangdan()
         {
+            
             string zd = "";
+            /*
             int groupNum = 0;
             foreach (GROUP jp in _group.MemberList)
             {
@@ -2651,6 +2693,7 @@ namespace WindowsFormsApplication4
                     zd += "\n";
                 }
             }
+            */
             return zd;
         }
 
@@ -2685,6 +2728,7 @@ namespace WindowsFormsApplication4
         /// <param name="b"></param>
         public void fasong(string xzmx, bool b)
         {
+            /*
             if (checkBox3.Checked)
             {
                 string xx = _qrWebWeChat.send(function.TextToBitmap(xzmx, Color.Black, Color.White));
@@ -2702,6 +2746,7 @@ namespace WindowsFormsApplication4
             {
                 jzxx(getname(_qrWebWeChat.UserName), xzmx, send(xzmx, _group.UserName));
             }
+            */
         }
 
         /// <summary>
@@ -2808,6 +2853,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button11_Click(object sender, EventArgs e)
         {
+            /*
             if (textBox8.Text == "")
                 return;
             int m = lvChengYuanJiFen.CheckedItems.Count;
@@ -2818,6 +2864,7 @@ namespace WindowsFormsApplication4
                     xiazhu(textBox8.Text.Split(' '), _group.MemberList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)]);
                 }
             }
+            */
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -2912,6 +2959,7 @@ namespace WindowsFormsApplication4
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            /*
             if (MessageBox.Show("是否关闭窗口", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
             {
                 e.Cancel = true;
@@ -2923,6 +2971,7 @@ namespace WindowsFormsApplication4
                 //程序完全退出
                 System.Environment.Exit(0);
             }
+            */
         }
 
         private void log(string str)
@@ -3061,6 +3110,7 @@ namespace WindowsFormsApplication4
 
         private void button30_Click(object sender, EventArgs e)
         {
+            /*
             string xzmx = "";
             int groupNum = 0;
             foreach (GROUP jp in _group.MemberList)
@@ -3078,6 +3128,7 @@ namespace WindowsFormsApplication4
             }
             xzmx = textBox17.Text.Replace("{下注明细}", xzmx).Replace("{期号}", _kaiJiangData.qihao);
             fasong(xzmx, false);
+            */
         }
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -3102,7 +3153,7 @@ namespace WindowsFormsApplication4
         }
         public bool FeiPan()
         {
-
+            /*
             _feiDanJieGuoData = new feiPanJieGuo();
             _feiDanJieGuoData.isSuccess = true;
 
@@ -3168,6 +3219,7 @@ namespace WindowsFormsApplication4
                     log("飞盘失败" + ex.Message);
                 }
             }
+            */
             return true;
         }
 
@@ -3177,282 +3229,283 @@ namespace WindowsFormsApplication4
         /// </summary>
         private string feiPanFanHuan()
         {
-
+           
 
             string zjxx = "";
             string strzd = "";
-            feiPanJieGuo fpJieGuo = _feiDanJieGuoData;
+            /*
+           feiPanJieGuo fpJieGuo = _feiDanJieGuoData;
 
 
-            //_shangQiKaiJiangData  上期开奖结果
-            //加下注积分，减中奖积分
+           //_shangQiKaiJiangData  上期开奖结果
+           //加下注积分，减中奖积分
 
-            if (fpJieGuo.isSuccess == true)
-            {
-                return "";
-            }
-
-
-
-            foreach (GROUP jp in _group.MemberList)
-            {
-
-
-                List<KeyVal> xiaZhuData = new List<KeyVal>();
-                int xiaZhuJifen = 0;//下注返还
-
-                int qd = 0;
-                int dxds = 0;
-                int zh = 0;
-                int zhzh = 0;
-                int lhh = 0;
-
-                #region 统计积分
-                for (int i = 0; i < 10; i++)
-                {
-                    for (int x = 0; x < 5; x++)
-                    {
-                        if (fpJieGuo.QD[x, i] == false)
-                        {
-                            xiaZhuJifen += jp.shangQiXiaZhu.QD[x, i];
-                            KeyVal c = new KeyVal("qd" + (x + 1).ToString() + "_" + i.ToString(), (-jp.shangQiXiaZhu.QD[x, i]).ToString());
-                            xiaZhuData.Add(c);
-                        }
-                        else
-                        {
-                            KeyVal c = new KeyVal("qd" + (x + 1).ToString() + "_" + i.ToString(), "0");
-                            xiaZhuData.Add(c);
-                        }
-                    }
-                }
-                for (int x = 0; x < 5; x++)
-                {
-                    if (fpJieGuo.QD[x, _shangQiKaiJiangData.QD[x]] == false)
-                    {
-                        qd += jp.shangQiXiaZhu.QD[x, _shangQiKaiJiangData.QD[x]];//球道
-                    }
-                }
-
-                //大小单双
-                for (int i = 0; i < 5; i++)
-                {
-                    for (int x = 0; x < 4; x++)
-                    {
-                        if (fpJieGuo.DXDS[i, x] == false)
-                        {
-                            xiaZhuJifen += jp.shangQiXiaZhu.DXDS[i, x];
-                            if (_shangQiKaiJiangData.DXDS[i, x] && jp.shangQiXiaZhu.DXDS[i, x] > 0)
-                            {
-                                dxds += jp.shangQiXiaZhu.DXDS[i, x];
-                            }
-                            KeyVal c = new KeyVal("d" + (i + 1).ToString() + "_" + x.ToString(), (-jp.shangQiXiaZhu.DXDS[i, x]).ToString());
-                            xiaZhuData.Add(c);
-                        }
-                        else
-                        {
-                            KeyVal c = new KeyVal("d" + (i + 1).ToString() + "_" + x.ToString(), "0");
-                            xiaZhuData.Add(c);
-                        }
-                    }
-                }
-
-                //总和  总和组合  龙虎和
-                for (int i = 0; i < 4; i++)
-                {
-                    if (fpJieGuo.ZHDXDS[i] == false)
-                    {
-                        xiaZhuJifen += jp.shangQiXiaZhu.ZHDXDS[i];
-                        if (_shangQiKaiJiangData.ZH[i])
-                        {
-                            zh += jp.shangQiXiaZhu.ZHDXDS[i];
-                            KeyVal c = new KeyVal("zh" + i.ToString(), (-jp.shangQiXiaZhu.ZHDXDS[i]).ToString());
-                            xiaZhuData.Add(c);
-                        }
-                        else
-                        {
-                            KeyVal c = new KeyVal("zh" + i.ToString(), "0");
-                            xiaZhuData.Add(c);
-                        }
-                    }
-                    else
-                    {
-                        KeyVal c = new KeyVal("zh" + i.ToString(), "0");
-                        xiaZhuData.Add(c);
-                    }
-
-
-                    if (fpJieGuo.ZHZHDXDS[i] == false)
-                    {
-                        xiaZhuJifen += jp.shangQiXiaZhu.ZHZHDXDS[i];
-                        if (_shangQiKaiJiangData.ZHzh[i])
-                        {
-                            zhzh += jp.shangQiXiaZhu.ZHZHDXDS[i];
-                            KeyVal c1 = new KeyVal("zhzh" + i.ToString(), (-jp.shangQiXiaZhu.ZHZHDXDS[i]).ToString());
-                            xiaZhuData.Add(c1);
-                        }
-                        else
-                        {
-                            KeyVal c1 = new KeyVal("zhzh" + i.ToString(), "0");
-                            xiaZhuData.Add(c1);
-                        }
-                    }
-                    else
-                    {
-                        KeyVal c1 = new KeyVal("zhzh" + i.ToString(), "0");
-                        xiaZhuData.Add(c1);
-                    }
-
-
-                    if (i != 3)
-                    {
-                        if (fpJieGuo.LHH[i] == false)
-                        {
-
-                            xiaZhuJifen += jp.shangQiXiaZhu.LHH[i];
-                            if (_shangQiKaiJiangData.LHH[i])
-                            {
-                                lhh += jp.shangQiXiaZhu.LHH[i];
-                                KeyVal l = new KeyVal("LHH" + i.ToString(), (-jp.shangQiXiaZhu.LHH[i]).ToString());
-                                xiaZhuData.Add(l);
-                            }
-                            else
-                            {
-                                KeyVal l = new KeyVal("LHH" + i.ToString(), "0");
-                                xiaZhuData.Add(l);
-                            }
-
-                        }
-                        else
-                        {
-                            KeyVal l = new KeyVal("LHH" + i.ToString(), "0");
-                            xiaZhuData.Add(l);
-                        }
-                    }
-
-
-                }
-
-                #endregion
-
-
-                #region 增加成员数据
-
-
-                //开奖后积分
-                double zjjf = 0;
-                try
-                {
-                    zjjf = (qd * Convert.ToDouble(textBox29.Text))
-                        + (dxds * Convert.ToDouble(textBox30.Text))
-                        + (zh * Convert.ToDouble(textBox31.Text))
-                        + (zhzh * Convert.ToDouble(textBox32.Text))
-                        + (lhh * Convert.ToDouble(textBox33.Text));
-
-
-                    double zjjfTemp = Math.Round(zjjf, 0);
-                    if (zjjfTemp < zjjf && _isJieSuanJinYi)
-                    {
-                        zjjf += 1;
-                    }
-                    else if (zjjfTemp > zjjf && _isJieSuanJinYi == false)
-                    {
-                        zjjf -= 1;
-                    }
-
-                    //
-                    zjjf = Math.Round(zjjf, 0);
-
-                }
-                catch (Exception ex)
-                {
-                    log(jp.NickName + "赔率未设置，结算失败");
-                }
-                if (xiaZhuJifen > 0)
-                {
-                    int benqiyingkui = (-(int)zjjf + xiaZhuJifen);//反向
-                    jp.zongyingkui += benqiyingkui;//加下注
-                    jp.zongxiazhu += -xiaZhuJifen;
-                    if (benqiyingkui != 0)
-                    {
-                        //奖金流水保存
-                        lock (obj)
-                        {
-                            _zongJiFen += benqiyingkui;
-                        }
-
-                        jp.zongjifen += benqiyingkui;
-
-                        //增加成员数据
-                        SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                            "'" + jp.NickName + "','" + jp.seq + "','" + _shangQiKaiJiangData.qihao + "','飞盘失败返还','" + benqiyingkui.ToString() + "','" + jp.zongjifen + "',''",
-                            " liushui_" + _group.seq);
-                        label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
-                    }
-
-                    KeyVal seq = new KeyVal("seq", jp.seq);
-                    xiaZhuData.Add(seq);
-                    KeyVal NN = new KeyVal("NickName", jp.NickName);
-                    xiaZhuData.Add(NN);
-                    KeyVal qh = new KeyVal("期号", _shangQiKaiJiangData.qihao);
-                    xiaZhuData.Add(qh);
-                    KeyVal xzwb = new KeyVal("下注文本", "飞盘失败，返还积分");
-                    xiaZhuData.Add(xzwb);
-                    KeyVal yk = new KeyVal("盈亏", benqiyingkui.ToString());
-                    xiaZhuData.Add(yk);
-                    KeyVal xzjf = new KeyVal("下注积分", (-xiaZhuJifen).ToString());
-                    xiaZhuData.Add(xzjf);
-                    KeyVal jsjf = new KeyVal("结算后积分", jp.zongjifen.ToString());
-                    xiaZhuData.Add(jsjf);
-
-                    //
-                    SQL.INSERT(xiaZhuData, " NameInt_" + _group.seq);
+           if (fpJieGuo.isSuccess == true)
+           {
+               return "";
+           }
 
 
 
-
-                    #region 统计积分
-
-                    //更新用户总积分
-                    string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + jp.seq + "'",
-                        "'现有积分'='" + jp.zongjifen.ToString() + "','总盈亏'='" + jp.zongyingkui.ToString() + "','总下注'='"
-                        + jp.zongxiazhu.ToString() + "'");
-
-                    SQLiteHelper.ExecuteNonQuery(delStr);
+           foreach (GROUP jp in _group.MemberList)
+           {
 
 
-                    //显示更新后积分，获取统计
-                    _group.zongyingkui += jp.zongyingkui;
-                    _group.benqixiazhu += jp.benqixiazhu;
-                    lvChengYuanJiFen.Items[jp.id].SubItems[5].Text = jp.zongjifen.ToString();
-                    lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();
-                    DateTime time1 = DateTime.Now.Date;
-                    DateTime time2 = time1.AddDays(1);
-                    try
-                    {
-                        DataTable deset = SQLiteHelper.ExecuteDataTable("select sum(盈亏)  from NameInt_" + _group.seq + " where seq='" + jp.seq
-                            + "' and Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00")
-                            + "' group by seq", null);
-                        lvChengYuanJiFen.Items[jp.id].SubItems[7].Text = deset.Rows[0][0].ToString();
-                    }
-                    catch (Exception ex)
-                    {
-                    }
+               List<KeyVal> xiaZhuData = new List<KeyVal>();
+               int xiaZhuJifen = 0;//下注返还
 
-                    #endregion
+               int qd = 0;
+               int dxds = 0;
+               int zh = 0;
+               int zhzh = 0;
+               int lhh = 0;
+
+               #region 统计积分
+               for (int i = 0; i < 10; i++)
+               {
+                   for (int x = 0; x < 5; x++)
+                   {
+                       if (fpJieGuo.QD[x, i] == false)
+                       {
+                           xiaZhuJifen += jp.shangQiXiaZhu.QD[x, i];
+                           KeyVal c = new KeyVal("qd" + (x + 1).ToString() + "_" + i.ToString(), (-jp.shangQiXiaZhu.QD[x, i]).ToString());
+                           xiaZhuData.Add(c);
+                       }
+                       else
+                       {
+                           KeyVal c = new KeyVal("qd" + (x + 1).ToString() + "_" + i.ToString(), "0");
+                           xiaZhuData.Add(c);
+                       }
+                   }
+               }
+               for (int x = 0; x < 5; x++)
+               {
+                   if (fpJieGuo.QD[x, _shangQiKaiJiangData.QD[x]] == false)
+                   {
+                       qd += jp.shangQiXiaZhu.QD[x, _shangQiKaiJiangData.QD[x]];//球道
+                   }
+               }
+
+               //大小单双
+               for (int i = 0; i < 5; i++)
+               {
+                   for (int x = 0; x < 4; x++)
+                   {
+                       if (fpJieGuo.DXDS[i, x] == false)
+                       {
+                           xiaZhuJifen += jp.shangQiXiaZhu.DXDS[i, x];
+                           if (_shangQiKaiJiangData.DXDS[i, x] && jp.shangQiXiaZhu.DXDS[i, x] > 0)
+                           {
+                               dxds += jp.shangQiXiaZhu.DXDS[i, x];
+                           }
+                           KeyVal c = new KeyVal("d" + (i + 1).ToString() + "_" + x.ToString(), (-jp.shangQiXiaZhu.DXDS[i, x]).ToString());
+                           xiaZhuData.Add(c);
+                       }
+                       else
+                       {
+                           KeyVal c = new KeyVal("d" + (i + 1).ToString() + "_" + x.ToString(), "0");
+                           xiaZhuData.Add(c);
+                       }
+                   }
+               }
+
+               //总和  总和组合  龙虎和
+               for (int i = 0; i < 4; i++)
+               {
+                   if (fpJieGuo.ZHDXDS[i] == false)
+                   {
+                       xiaZhuJifen += jp.shangQiXiaZhu.ZHDXDS[i];
+                       if (_shangQiKaiJiangData.ZH[i])
+                       {
+                           zh += jp.shangQiXiaZhu.ZHDXDS[i];
+                           KeyVal c = new KeyVal("zh" + i.ToString(), (-jp.shangQiXiaZhu.ZHDXDS[i]).ToString());
+                           xiaZhuData.Add(c);
+                       }
+                       else
+                       {
+                           KeyVal c = new KeyVal("zh" + i.ToString(), "0");
+                           xiaZhuData.Add(c);
+                       }
+                   }
+                   else
+                   {
+                       KeyVal c = new KeyVal("zh" + i.ToString(), "0");
+                       xiaZhuData.Add(c);
+                   }
 
 
-                    lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
-                }
-                try
-                { }
-                catch (Exception ex)
-                {
-                    log(jp.NickName + "玩家返还结算失败");
-                }
+                   if (fpJieGuo.ZHZHDXDS[i] == false)
+                   {
+                       xiaZhuJifen += jp.shangQiXiaZhu.ZHZHDXDS[i];
+                       if (_shangQiKaiJiangData.ZHzh[i])
+                       {
+                           zhzh += jp.shangQiXiaZhu.ZHZHDXDS[i];
+                           KeyVal c1 = new KeyVal("zhzh" + i.ToString(), (-jp.shangQiXiaZhu.ZHZHDXDS[i]).ToString());
+                           xiaZhuData.Add(c1);
+                       }
+                       else
+                       {
+                           KeyVal c1 = new KeyVal("zhzh" + i.ToString(), "0");
+                           xiaZhuData.Add(c1);
+                       }
+                   }
+                   else
+                   {
+                       KeyVal c1 = new KeyVal("zhzh" + i.ToString(), "0");
+                       xiaZhuData.Add(c1);
+                   }
 
-                #endregion
-            }
 
+                   if (i != 3)
+                   {
+                       if (fpJieGuo.LHH[i] == false)
+                       {
+
+                           xiaZhuJifen += jp.shangQiXiaZhu.LHH[i];
+                           if (_shangQiKaiJiangData.LHH[i])
+                           {
+                               lhh += jp.shangQiXiaZhu.LHH[i];
+                               KeyVal l = new KeyVal("LHH" + i.ToString(), (-jp.shangQiXiaZhu.LHH[i]).ToString());
+                               xiaZhuData.Add(l);
+                           }
+                           else
+                           {
+                               KeyVal l = new KeyVal("LHH" + i.ToString(), "0");
+                               xiaZhuData.Add(l);
+                           }
+
+                       }
+                       else
+                       {
+                           KeyVal l = new KeyVal("LHH" + i.ToString(), "0");
+                           xiaZhuData.Add(l);
+                       }
+                   }
+
+
+               }
+
+               #endregion
+
+
+               #region 增加成员数据
+
+
+               //开奖后积分
+               double zjjf = 0;
+               try
+               {
+                   zjjf = (qd * Convert.ToDouble(textBox29.Text))
+                       + (dxds * Convert.ToDouble(textBox30.Text))
+                       + (zh * Convert.ToDouble(textBox31.Text))
+                       + (zhzh * Convert.ToDouble(textBox32.Text))
+                       + (lhh * Convert.ToDouble(textBox33.Text));
+
+
+                   double zjjfTemp = Math.Round(zjjf, 0);
+                   if (zjjfTemp < zjjf && _isJieSuanJinYi)
+                   {
+                       zjjf += 1;
+                   }
+                   else if (zjjfTemp > zjjf && _isJieSuanJinYi == false)
+                   {
+                       zjjf -= 1;
+                   }
+
+                   //
+                   zjjf = Math.Round(zjjf, 0);
+
+               }
+               catch (Exception ex)
+               {
+                   log(jp.NickName + "赔率未设置，结算失败");
+               }
+               if (xiaZhuJifen > 0)
+               {
+                   int benqiyingkui = (-(int)zjjf + xiaZhuJifen);//反向
+                   jp.zongyingkui += benqiyingkui;//加下注
+                   jp.zongxiazhu += -xiaZhuJifen;
+                   if (benqiyingkui != 0)
+                   {
+                       //奖金流水保存
+                       lock (obj)
+                       {
+                           _zongJiFen += benqiyingkui;
+                       }
+
+                       jp.zongjifen += benqiyingkui;
+
+                       //增加成员数据
+                       SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
+                           "'" + jp.NickName + "','" + jp.seq + "','" + _shangQiKaiJiangData.qihao + "','飞盘失败返还','" + benqiyingkui.ToString() + "','" + jp.zongjifen + "',''",
+                           " liushui_" + _group.seq);
+                       label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
+                   }
+
+                   KeyVal seq = new KeyVal("seq", jp.seq);
+                   xiaZhuData.Add(seq);
+                   KeyVal NN = new KeyVal("NickName", jp.NickName);
+                   xiaZhuData.Add(NN);
+                   KeyVal qh = new KeyVal("期号", _shangQiKaiJiangData.qihao);
+                   xiaZhuData.Add(qh);
+                   KeyVal xzwb = new KeyVal("下注文本", "飞盘失败，返还积分");
+                   xiaZhuData.Add(xzwb);
+                   KeyVal yk = new KeyVal("盈亏", benqiyingkui.ToString());
+                   xiaZhuData.Add(yk);
+                   KeyVal xzjf = new KeyVal("下注积分", (-xiaZhuJifen).ToString());
+                   xiaZhuData.Add(xzjf);
+                   KeyVal jsjf = new KeyVal("结算后积分", jp.zongjifen.ToString());
+                   xiaZhuData.Add(jsjf);
+
+                   //
+                   SQL.INSERT(xiaZhuData, " NameInt_" + _group.seq);
+
+
+
+
+                   #region 统计积分
+
+                   //更新用户总积分
+                   string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + jp.seq + "'",
+                       "'现有积分'='" + jp.zongjifen.ToString() + "','总盈亏'='" + jp.zongyingkui.ToString() + "','总下注'='"
+                       + jp.zongxiazhu.ToString() + "'");
+
+                   SQLiteHelper.ExecuteNonQuery(delStr);
+
+
+                   //显示更新后积分，获取统计
+                   _group.zongyingkui += jp.zongyingkui;
+                   _group.benqixiazhu += jp.benqixiazhu;
+                   lvChengYuanJiFen.Items[jp.id].SubItems[5].Text = jp.zongjifen.ToString();
+                   lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();
+                   DateTime time1 = DateTime.Now.Date;
+                   DateTime time2 = time1.AddDays(1);
+                   try
+                   {
+                       DataTable deset = SQLiteHelper.ExecuteDataTable("select sum(盈亏)  from NameInt_" + _group.seq + " where seq='" + jp.seq
+                           + "' and Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00")
+                           + "' group by seq", null);
+                       lvChengYuanJiFen.Items[jp.id].SubItems[7].Text = deset.Rows[0][0].ToString();
+                   }
+                   catch (Exception ex)
+                   {
+                   }
+
+                   #endregion
+
+
+                   lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
+               }
+               try
+               { }
+               catch (Exception ex)
+               {
+                   log(jp.NickName + "玩家返还结算失败");
+               }
+
+               #endregion
+           }
+           */
 
             return zjxx + "||||||" + strzd;
         }
@@ -3483,7 +3536,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button5_Click_1(object sender, EventArgs e)
         {
-
+            /*
             _qrWebWeChat.GETgroup();
 
             foreach (GROUP groupItem in _qrWebWeChat.grox)
@@ -3517,7 +3570,7 @@ namespace WindowsFormsApplication4
             }
 
             //new Thread(dgv2).Start();
-
+            */
         }
         /// <summary>
         /// 期号不足位数补0

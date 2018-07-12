@@ -180,6 +180,7 @@ namespace AI
             CacheData.SelectedGroupIndex = comboBox2.SelectedIndex;
 
             //webChat.grox[comboBox2.SelectedIndex].seq = comboBox1.Text;
+            CacheData.Seq = comboBox1.Text;
             Form1 qr = new Form1(CacheData.CurrentGroupList[comboBox2.SelectedIndex], this.Text);
             qr.Show();
             Hide();
