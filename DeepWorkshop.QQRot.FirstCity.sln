@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeepWorkshop.QQRot.FirstCity", "DeepWorkshop.QQRot.FirstCity\DeepWorkshop.QQRot.FirstCity.csproj", "{E531993C-CCE8-48F2-8246-AE8A3B495FDD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestPlugin", "TestPlugin\TestPlugin.csproj", "{5ECF053B-282D-46E4-9F85-2D72C0257AA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{E531993C-CCE8-48F2-8246-AE8A3B495FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E531993C-CCE8-48F2-8246-AE8A3B495FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E531993C-CCE8-48F2-8246-AE8A3B495FDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ECF053B-282D-46E4-9F85-2D72C0257AA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ECF053B-282D-46E4-9F85-2D72C0257AA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ECF053B-282D-46E4-9F85-2D72C0257AA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ECF053B-282D-46E4-9F85-2D72C0257AA0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
