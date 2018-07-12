@@ -1,11 +1,11 @@
-﻿using Newbe.CQP.Framework;
+﻿using DeepWorkshop.QQRot.FirstCity.MyModel;
+using Newbe.CQP.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using WindowsFormsApplication4;
-using www_52bang_site_enjoy.MyTool;
 using 新一城娱乐系统;
 
 namespace DeepWorkshop.QQRot.FirstCity
@@ -18,6 +18,7 @@ namespace DeepWorkshop.QQRot.FirstCity
         public static Form1 frmMain = null;//软件主窗口
         public MainPlugin(ICoolQApi coolQApi) : base(coolQApi)
         {
+            CacheData.CoolQApi = coolQApi;
             //酷q登录成功后，进入软件登录页面
             new login().Show();
 

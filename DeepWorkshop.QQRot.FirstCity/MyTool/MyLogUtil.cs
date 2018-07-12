@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace www_52bang_site_enjoy.MyTool
+namespace DeepWorkshop.QQRot.FirstCity.MyTool
 {
     public class MyLogUtil
     {

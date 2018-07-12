@@ -6,7 +6,6 @@ using System.IO;
 using System.Data.SQLite;
 using System.Data;
 using DeepWorkshop.QQRot.FirstCity.MyTool;
-using www_52bang_site_enjoy.MyTool;
 
 namespace Dal
 {

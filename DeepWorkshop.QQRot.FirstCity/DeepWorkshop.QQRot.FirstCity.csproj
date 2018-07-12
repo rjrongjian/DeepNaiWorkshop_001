@@ -109,6 +109,9 @@
       <DependentUpon>login.cs</DependentUpon>
     </Compile>
     <Compile Include="MainPlugin.cs" />
+    <Compile Include="MyModel\CacheData.cs" />
+    <Compile Include="MyModel\GroupInfo.cs" />
+    <Compile Include="MyTool\CoolQApiExtend.cs" />
     <Compile Include="MyTool\MyLogUtil.cs" />
     <Compile Include="MyTool\MySystemUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
