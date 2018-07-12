@@ -4,6 +4,7 @@ using Bll;
 using Dal;
 using DeepWorkshop.QQRot.FirstCity;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
+using Newbe.CQP.Framework;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -70,7 +71,7 @@ namespace WindowsFormsApplication4
 
         private MouseEventArgs _aoEvent = null;
 
-        private bool _jianTin = false;
+        //private bool _jianTin = false;
 
         private bool _isFeiPan = false;
 
@@ -409,7 +410,7 @@ namespace WindowsFormsApplication4
         /// <param name="Offline"></param>
         private void MessageArrival(string retcode, string selector, JObject Offline)
         {
-            
+            /*
             if (_offLine == Offline.ToString())
             {
                 return;
@@ -473,6 +474,7 @@ namespace WindowsFormsApplication4
                 //告诉服务器  我收到了消息
                 _qrWebWeChat.huidiao(ToUserName, FromUserName);
             }
+            */
             
         }
 
@@ -1276,25 +1278,54 @@ namespace WindowsFormsApplication4
         }
 
         /// <summary>
-        /// 增加消息
+        /// 增加消息,以软件端发送的消息 存到数据库时seq 代表库名，昵称 代表群名
         /// </summary>
         /// <param name="gr"></param>
         /// <param name="Content"></param>
-        private void jzxx(GROUP gr, string Content, string msgid)
+        private void jzxx(GroupInfo gr, string Content, string msgid)
         {
             ListViewItem item = new ListViewItem();
-            item.SubItems.Add(gr.NickName);
-            item.SubItems.Add(gr.RemarkName);
-            item.SubItems.Add(Content);
+            item.SubItems.Add(gr.GroupName);//群名
+            item.SubItems.Add("群号："+gr.GroupId);//群号
+            item.SubItems.Add(Content);//发送的群信息
             item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            item.SubItems.Add(msgid);
-            item.SubItems.Add(gr.UserName);
+            item.SubItems.Add(msgid);//发送群消息返回的结果
+            item.SubItems.Add("");//暂时不知道传什么
             item.SubItems.Remove(item.SubItems[0]);
             lvQunXiaoXi.Items.Insert(0, item);
             List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
-            KeyVal zcs1 = new KeyVal("seq", gr.seq);
+            KeyVal zcs1 = new KeyVal("seq", CacheData.Seq);
             zcs.Add(zcs1);
-            KeyVal zcs2 = new KeyVal("昵称", gr.NickName);
+            KeyVal zcs2 = new KeyVal("昵称", gr.GroupName);//群名
+            zcs.Add(zcs2);
+            KeyVal zcs3 = new KeyVal("内容", Content);
+            zcs.Add(zcs3);
+            try
+            {
+                SQL.INSERT(zcs, " liaotian_" + CacheData.Seq);
+            }
+            catch (Exception ex) { }
+        }
+        /// <summary>
+        /// 增加消息,以软件端发送的消息 存到数据库时seq 代表库名，昵称 代表群名
+        /// </summary>
+        /// <param name="gr"></param>
+        /// <param name="Content"></param>
+        private void jzxx(GroupInfo gr,long CurrentLoginQQ, string Content, string msgid)
+        {
+            ListViewItem item = new ListViewItem();
+            item.SubItems.Add(gr.GroupName);//群名
+            item.SubItems.Add("群号：" + gr.GroupId);//群号
+            item.SubItems.Add(Content);//发送的群信息
+            item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            item.SubItems.Add(msgid);//发送群消息返回的结果
+            item.SubItems.Add(""+CurrentLoginQQ);
+            item.SubItems.Remove(item.SubItems[0]);
+            lvQunXiaoXi.Items.Insert(0, item);
+            List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
+            KeyVal zcs1 = new KeyVal("seq", CacheData.Seq);
+            zcs.Add(zcs1);
+            KeyVal zcs2 = new KeyVal("昵称", gr.GroupName);//群名
             zcs.Add(zcs2);
             KeyVal zcs3 = new KeyVal("内容", Content);
             zcs.Add(zcs3);
@@ -1328,8 +1359,9 @@ namespace WindowsFormsApplication4
             return "";
         }
 
+        ///废弃
         /// <summary>
-        /// 获取群成员
+        /// 获取当前登录软件的群成员的信息
         /// </summary>
         /// <param name="UserName"></param>
         /// <returns></returns>
@@ -2590,7 +2622,7 @@ namespace WindowsFormsApplication4
                 if (DateTime.Now > 新一城娱乐系统.FeiPan.ServerCommon.serverExpire && isShowServerExpire == false)
                 {
                     isShowServerExpire = true;
-                    _jianTin = false;
+                    CacheData.IsJianTing = false;
                     MessageBox.Show("用户到期，系统停止监听消息，程序将自动退出。", "提示", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     //程序完全退出
                     System.Environment.Exit(0);
@@ -2721,32 +2753,36 @@ namespace WindowsFormsApplication4
             fasong(xzmx, false);
         }
 
+        /// 正在改
         /// <summary>
-        /// 发送文字到微信群
+        /// 发送文字到QQ群
         /// </summary>
-        /// <param name="xzmx"></param>
-        /// <param name="b"></param>
+        /// <param name="xzmx">要发送的文字信息</param>
+        /// <param name="b">酷q中gif、jpg用同一个方法，此参数作废</param>
         public void fasong(string xzmx, bool b)
         {
-            /*
-            if (checkBox3.Checked)
+            
+            if (checkBox3.Checked)//系统设置->图片模式
             {
-                string xx = _qrWebWeChat.send(function.TextToBitmap(xzmx, Color.Black, Color.White));
-                xx = xx.Replace(" ", "");
-                string MediaId = function.middlestring(xx, "MediaId\":\"", "\"");
-                string msgid;
-                if (b)
-                    msgid = _qrWebWeChat.sendgif(MediaId, _group.UserName);
-                else
-                    msgid = _qrWebWeChat.sendImage(MediaId, _group.UserName);
-                if (msgid != "")
-                    jzxx(_group, "[图]" + xzmx, msgid);
+                Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
+                //返回的路径是酷q中指定的路径
+                String imgPath = MyImageUtil.Save(image);
+                int msgid = -9999;
+                if (!string.IsNullOrWhiteSpace(imgPath))//生成图片成功
+                {
+                    //发送群消息,信息为图片
+                    msgid = CacheData.CoolQApi.SendGroupMsg(_group.GroupId, CoolQCode.Image(imgPath));
+                }
+               
+                
+                jzxx(_group, "[图]" + xzmx, ""+msgid);
             }
             else
             {
-                jzxx(getname(_qrWebWeChat.UserName), xzmx, send(xzmx, _group.UserName));
+                int msgid = CacheData.CoolQApi.SendGroupMsg(_group.GroupId, xzmx);
+                jzxx(_group,CacheData.LoginQQ, xzmx, ""+msgid);
             }
-            */
+            
         }
 
         /// <summary>
@@ -2883,12 +2919,18 @@ namespace WindowsFormsApplication4
             }
             _guiZe.sava();
         }
-
+        /// 正在改
+        /// <summary>
+        /// 是否启动监听群员发送的消息
+        /// 不启动的话，不会监听
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button13_Click(object sender, EventArgs e)
         {
-            if (_jianTin)
+            if (CacheData.IsJianTing)
             {
-                _jianTin = false;
+                CacheData.IsJianTing = false;
                 button13.Text = "启动监听";
                 状态栏.Text = "已关闭监听";
             }
@@ -2896,7 +2938,7 @@ namespace WindowsFormsApplication4
             {
                 button13.Text = "取消监听";
                 状态栏.Text = "正在监听群消息.....";
-                _jianTin = true;
+                CacheData.IsJianTing = true;
                 fasong("开始！", false);
             }
         }

@@ -1177,6 +1177,7 @@ namespace AI.Bll
             //
             if (MainPlugin.frmMain != null && MainPlugin.frmMain._group != null)
             {
+
                 foreach (GROUP jp in MainPlugin.frmMain._group.MemberList)
                 {
                     if (jp.conter == "")

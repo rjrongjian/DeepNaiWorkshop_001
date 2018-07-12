@@ -1,10 +1,12 @@
 ﻿using DeepWorkshop.QQRot.FirstCity.MyModel;
+using DeepWorkshop.QQRot.FirstCity.MyTool;
 using Newbe.CQP.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using WindowsFormsApplication4;
 using 新一城娱乐系统;
 
@@ -18,9 +20,25 @@ namespace DeepWorkshop.QQRot.FirstCity
         public static Form1 frmMain = null;//软件主窗口
         public MainPlugin(ICoolQApi coolQApi) : base(coolQApi)
         {
-            CacheData.CoolQApi = coolQApi;
-            //酷q登录成功后，进入软件登录页面
-            new login().Show();
+            try
+            {
+                //这里会报authCode错误，air版本并不会
+                /*
+                CacheData.LoginQQ = coolQApi.GetLoginQQ();
+                CacheData.LoginNick = coolQApi.GetLoginNick();
+                MyLogUtil.ToLogFotTest(CacheData.LoginQQ + "_" + CacheData.LoginNick);
+                */
+                CacheData.CoolQApi = coolQApi;
+                //酷q登录成功后，进入软件登录页面
+                new login().Show();
+                
+            }
+            catch (Exception ex)
+            {
+                MyLogUtil.ErrToLog("不可预知的异常，原因："+ex);
+                MessageBox.Show("不可预知的异常，请查看错误日志");
+            }
+            
 
 
         }
@@ -28,6 +46,7 @@ namespace DeepWorkshop.QQRot.FirstCity
         /// AppId需要与程序集名称相同
         /// </summary>
         public override string AppId => "DeepWorkshop.QQRot.FirstCity";
+        
         /// <summary>
         /// 监听私聊事件
         /// </summary>
@@ -43,7 +62,7 @@ namespace DeepWorkshop.QQRot.FirstCity
             //CoolQApi.SendPrivateMsg(fromQQ, msg);
             return base.ProcessPrivateMessage(subType, sendTime, fromQQ, msg, font);
         }
-
+        /*
 
         /// <summary>
         /// 好友添加请求
@@ -184,6 +203,7 @@ namespace DeepWorkshop.QQRot.FirstCity
 
             return base.ProcessJoinGroupRequest(subType, sendTime, fromGroup, fromQq, msg, responseMark);
         }
+        */
     }
-    
+
 }

@@ -1,12 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
-
+using System.Windows.Forms;
 
 namespace DeepWorkshop.QQRot.FirstCity.MyTool
 {
     class MySystemUtil
     {
+        /// <summary>
+        /// 获取exe所在的根目录
+        /// </summary>
+        /// <returns></returns>
+        public static string GetExeRootPath()
+        {
+            return Application.StartupPath.ToString()+ Path.DirectorySeparatorChar;
+        }
+
         /// <summary>  
         /// 获取当前执行的dll的目录 例如： D:\dir\dir\
         /// </summary>  

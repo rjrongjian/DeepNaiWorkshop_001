@@ -182,6 +182,7 @@ namespace AI
             //webChat.grox[comboBox2.SelectedIndex].seq = comboBox1.Text;
             CacheData.Seq = comboBox1.Text;
             Form1 qr = new Form1(CacheData.CurrentGroupList[comboBox2.SelectedIndex], this.Text);
+            CacheData.MainFrom = qr;
             qr.Show();
             Hide();
         }
