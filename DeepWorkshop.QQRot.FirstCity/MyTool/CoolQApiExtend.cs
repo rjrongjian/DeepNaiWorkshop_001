@@ -1,5 +1,6 @@
 ﻿using DeepWorkshop.QQRot.FirstCity.MyModel;
 using Newbe.CQP.Framework;
+using Newbe.CQP.Framework.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,14 +20,14 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
         /// </summary>
         /// <param name="groupInfo">密文</param>
         /// <returns></returns>
-        public static List<GroupInfo> ParseGroupList(string groupInfo)
+        public static List<MyModel.GroupInfo> ParseGroupList(string groupInfo)
         {
             //MyLogUtil.ToLog("获取的群列表："+ groupInfo);
             byte[] bt = Convert.FromBase64String(groupInfo);
             int weizhi = 0;
             double groups = 0;
             string groupname3 = "";
-            List<GroupInfo> groupInfoList = new List<GroupInfo>();
+            List<MyModel.GroupInfo> groupInfoList = new List<MyModel.GroupInfo>();
             for (int i = 0; i < 4; i++)
             {
                 groups += bt[i] * Math.Pow(256, 3 - i);
@@ -60,7 +61,7 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
                 byte[] byt = listname.ToArray();
                 groupname3 = Encoding.Default.GetString(byt);
                 //MyLogUtil.ToLog("群名：" + groupname3.ToString());
-                groupInfoList.Add(new GroupInfo(groupname3,groupId,0));
+                groupInfoList.Add(new MyModel.GroupInfo(groupname3,groupId,0));
             }
 
             return groupInfoList;
@@ -71,13 +72,43 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
         /// </summary>
         /// <param name="api"></param>
         /// <returns></returns>
-        public static List<GroupInfo> GetGroupList(ICoolQApi api)
+        public static List<MyModel.GroupInfo> GetGroupList(ICoolQApi api)
         {
             string content = api.CQ_getGroupList();
-            List<GroupInfo> list = ParseGroupList(content);
+            List<MyModel.GroupInfo> list = ParseGroupList(content);
             //缓存当前加载的群列表
             CacheData.CurrentGroupList = list;
             return list;
         } 
+        /// <summary>
+        /// 获取群成员，并缓存
+        /// </summary>
+        /// <param name="api"></param>
+        /// <param name="groupId"></param>
+        /// <returns></returns>
+        public static List<GroupMemberInfoWithBocai> GetGroupMemberListAndCache(ICoolQApi api, long groupId)
+        {
+            List<GroupMemberInfoWithBocai> list = new List<GroupMemberInfoWithBocai>();
+            Dictionary<long, GroupMemberInfoWithBocai> keyVal = new Dictionary<long, GroupMemberInfoWithBocai>();
+            ModelWithSourceString<IEnumerable<GroupMemberInfo>> result = CoolApiExtensions.GetGroupMemberList(api, groupId);
+            IEnumerable<GroupMemberInfo> iterator = result.Model;
+            if (iterator != null)
+            {
+                foreach(GroupMemberInfo memberInfo in iterator)
+                {
+                    GroupMemberInfoWithBocai groupMemberInfoWithBocai = new GroupMemberInfoWithBocai(memberInfo);
+                    list.Add(groupMemberInfoWithBocai);
+                    keyVal.Add(memberInfo.Number, groupMemberInfoWithBocai);
+                }
+            }
+
+            CacheData.GroupMemberInfoList = list;
+            CacheData.GroupMemberInfoDic = keyVal;
+            return list;
+        }
+
+
+
+
     }
 }

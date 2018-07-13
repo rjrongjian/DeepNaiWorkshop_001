@@ -1,4 +1,5 @@
-﻿using Newbe.CQP.Framework;
+﻿using DeepWorkshop.QQRot.FirstCity.MyTool;
+using Newbe.CQP.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,5 +20,9 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
 
         public static long LoginQQ;//当前登录的qq号
         public static string LoginNick;//当前登录的qq号的昵称
+
+        public static List<GroupMemberInfoWithBocai> GroupMemberInfoList;//当前选择的qq群的群员list
+        public static Dictionary<long, GroupMemberInfoWithBocai> GroupMemberInfoDic;////当前选择的qq群的群员Dictionary，方便找群员信息
+        public static MyDictionaryUtil<long, GroupMemberInfoWithBocai> SearchMemberInfo = new MyDictionaryUtil<long, GroupMemberInfoWithBocai>();//用于查询群成员信息的查询器
     }
 }

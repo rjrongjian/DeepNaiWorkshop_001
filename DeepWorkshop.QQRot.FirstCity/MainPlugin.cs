@@ -22,12 +22,13 @@ namespace DeepWorkshop.QQRot.FirstCity
         {
             try
             {
-                //这里会报authCode错误，air版本并不会
+                //这里调用的话，会报authCode错误,
                 /*
                 CacheData.LoginQQ = coolQApi.GetLoginQQ();
                 CacheData.LoginNick = coolQApi.GetLoginNick();
                 MyLogUtil.ToLogFotTest(CacheData.LoginQQ + "_" + CacheData.LoginNick);
                 */
+                
                 CacheData.CoolQApi = coolQApi;
                 //酷q登录成功后，进入软件登录页面
                 new login().Show();
@@ -61,6 +62,23 @@ namespace DeepWorkshop.QQRot.FirstCity
             //使用CoolQApi将信息回发给发送者
             //CoolQApi.SendPrivateMsg(fromQQ, msg);
             return base.ProcessPrivateMessage(subType, sendTime, fromQQ, msg, font);
+        }
+
+        /// <summary>
+        /// 处理群聊消息
+        /// </summary>
+        /// <param name="subType">消息类型，目前固定为1</param>
+        /// <param name="sendTime">消息发送时间的时间戳</param>
+        /// <param name="fromGroup">消息来源群号</param>
+        /// <param name="fromQq">发送此消息的QQ号码</param>
+        /// <param name="fromAnonymous">发送此消息的匿名用户</param>
+        /// <param name="msg">消息内容</param>
+        /// <param name="font">消息所使用字体</param>
+        /// <returns></returns>
+        public override int ProcessGroupMessage(int subType, int sendTime, long fromGroup, long fromQq, string fromAnonymous, string msg, int font)
+        {
+            frmMain.MessageArrival(fromGroup, fromQq, msg);
+            return base.ProcessGroupMessage(subType, sendTime, fromGroup, fromQq, fromAnonymous, msg, font);
         }
         /*
 
@@ -157,22 +175,7 @@ namespace DeepWorkshop.QQRot.FirstCity
 
             return base.ProcessGroupMemberIncrease(subType, sendTime, fromGroup, fromQq, target);
         }
-        /// <summary>
-        /// 处理群聊消息
-        /// </summary>
-        /// <param name="subType">消息类型，目前固定为1</param>
-        /// <param name="sendTime">消息发送时间的时间戳</param>
-        /// <param name="fromGroup">消息来源群号</param>
-        /// <param name="fromQq">发送此消息的QQ号码</param>
-        /// <param name="fromAnonymous">发送此消息的匿名用户</param>
-        /// <param name="msg">消息内容</param>
-        /// <param name="font">消息所使用字体</param>
-        /// <returns></returns>
-        public override int ProcessGroupMessage(int subType, int sendTime, long fromGroup, long fromQq, string fromAnonymous, string msg, int font)
-        {
-            
-            return base.ProcessGroupMessage(subType, sendTime, fromGroup, fromQq, fromAnonymous, msg, font);
-        }
+        
         /// <summary>
         /// 处理群文件上传事件
         /// </summary>

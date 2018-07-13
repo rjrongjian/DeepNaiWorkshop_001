@@ -2,6 +2,7 @@
 using AI.Bll;
 using AI.Dal;
 using Bll;
+using DeepWorkshop.QQRot.FirstCity.MyModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,8 +62,8 @@ namespace 新一城娱乐系统
                 DateTime.TryParse(expire, out dtExpire);
                 新一城娱乐系统.FeiPan.ServerCommon.serverExpire = dtExpire;
                 //
-                MessageBox.Show("登录成功，本软件仅供娱乐，禁止用于赌博，否则后果自负。");
-                //new QrCode("新一城娱乐系统V1.0 （有效期至：" + expire + "） 登录用户：" + textBox1.Text + "  （本软件仅供娱乐，禁止用于赌博，否则后果自负）").Show();
+                //MessageBox.Show("登录成功，本软件仅供娱乐，禁止用于赌博，否则后果自负。");
+                new QrCode("新一城娱乐系统V1.0 （有效期至：" + expire + "） 登录用户：" + textBox1.Text + "  （本软件仅供娱乐，禁止用于赌博，否则后果自负）").Show();
                 this.Hide();
             }
             if (zt == "-1")

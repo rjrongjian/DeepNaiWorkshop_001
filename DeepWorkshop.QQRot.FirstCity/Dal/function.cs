@@ -16,7 +16,7 @@ using WindowsFormsApplication4;
 
 namespace AI.Bll
 {
-    internal class function
+    public  class function
     {
         /// <summary>
         /// 写文件
@@ -1116,6 +1116,7 @@ namespace AI.Bll
 
         public static void FpLog(string qiHao, xztj xiaZhu, feiPanJieGuo fpjgData)
         {
+            /*
             string sChengYuanXiaZhu = "";
             string sQiudao = "";
 
@@ -1237,6 +1238,7 @@ namespace AI.Bll
                 sChengYuanXiaZhu = "==============" + qiHao + "===============\r\n总提交成功\r\n" + sChengYuanXiaZhu;
                 logFp(sChengYuanXiaZhu);
             }
+            */
         }
 
         public static string filtetStingSpecial(string str)

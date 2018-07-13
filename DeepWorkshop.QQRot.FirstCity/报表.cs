@@ -424,6 +424,7 @@ namespace 新一城娱乐系统
         /// <param name="e"></param>
         private void listView4_MouseUp(object sender, MouseEventArgs e)
         {
+            /*
             ListViewItem lvi = listView4.GetItemAt(e.X, e.Y);
             if (lvi != null)
             {
@@ -561,6 +562,7 @@ namespace 新一城娱乐系统
             {
                 MessageBox.Show("回水失败");
             }
+            */
         }
 
         private void listView4_SelectedIndexChanged(object sender, EventArgs e)

@@ -205,6 +205,7 @@ namespace AI
             //获取QQ群列表
             List<GroupInfo> qqQunList = CoolQApiExtend.GetGroupList(CacheData.CoolQApi);
             
+            
             //将数据刷新到组件
             RefreshQunListCom(qqQunList);
             //webChat.FriendsList(false);

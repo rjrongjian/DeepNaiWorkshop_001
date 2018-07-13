@@ -65,6 +65,7 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
 
         public static void ToLogFotTest(string str)
         {
+            Console.WriteLine(str);
             StreamWriter streamWriter = new StreamWriter(MySystemUtil.GetDllRoot() + "testLog.txt", true);
             streamWriter.WriteLine(DateTime.Now.ToString() + "=>" + str);
             streamWriter.WriteLine("---------------------------------------------------------");

@@ -4,6 +4,7 @@ using Bll;
 using Dal;
 using DeepWorkshop.QQRot.FirstCity;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
+using DeepWorkshop.QQRot.FirstCity.MyTool;
 using Newbe.CQP.Framework;
 using Newtonsoft.Json.Linq;
 using System;
@@ -222,6 +223,10 @@ namespace WindowsFormsApplication4
         public Form1( GroupInfo qz, string title)
         {
             InitializeComponent();
+            //初始化当前登陆的qq
+            CacheData.LoginQQ = CacheData.CoolQApi.GetLoginQQ();
+            CacheData.LoginNick = CacheData.CoolQApi.GetLoginNick();
+            MyLogUtil.ToLogFotTest(CacheData.LoginQQ + "_" + CacheData.LoginNick);
             try
             {
                 if (ConfigHelper.GetAppConfig("qd") != null)
@@ -255,7 +260,9 @@ namespace WindowsFormsApplication4
             _group = qz;
             //_qrWebWeChat = webchat;
             Control.CheckForIllegalCrossThreadCalls = false;
+            
             _qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
+            
             状态栏.Text = "单击启动监听开始获取群消息！";
 
             //_group.MemberList = _qrWebWeChat.GETgrouplist(_group.DATAlist, _group.URLlist);
@@ -308,11 +315,14 @@ namespace WindowsFormsApplication4
                     textBox24.Text = det.Rows[0]["倍数"].ToString();
                     textBox25.Text = det.Rows[0]["最小"].ToString();
                     textBox26.Text = det.Rows[0]["最大"].ToString();
-
-                    comboBox1.Text = det.Rows[0]["封盘前"].ToString().Split('|')[1];
-                    comboBox6.Text = det.Rows[0]["封盘"].ToString().Split('|')[1];
+                    //修复数组越界，表中首条数据只有账单字段有值，所以这些字段无需做此分割操作
+                    comboBox1.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘前"].ToString())?"":det.Rows[0]["封盘前"].ToString().Split('|')[1];
+                    comboBox6.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘"].ToString()) ?"":det.Rows[0]["封盘"].ToString().Split('|')[1];
                 }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
+                catch (Exception ex) {
+                    MyLogUtil.ErrToLog("初始化主窗口出错，原因："+ex);
+                    MessageBox.Show(ex.Message);
+                }
             }
 
             MainPlugin.frmMain = this;
@@ -402,6 +412,7 @@ namespace WindowsFormsApplication4
             */
         }
 
+        /// 废弃
         /// <summary>
         /// 消息处理
         /// </summary>
@@ -410,74 +421,117 @@ namespace WindowsFormsApplication4
         /// <param name="Offline"></param>
         private void MessageArrival(string retcode, string selector, JObject Offline)
         {
-            /*
+            
             if (_offLine == Offline.ToString())
             {
                 return;
             }
+            
+            /*
+                        _offLine = Offline.ToString();
+                        foreach (JObject msg in Offline["AddMsgList"])
+                        {
+                            //获取消息的基本参数
+                            string FromUserName = msg["FromUserName"].ToString();
+                            string ToUserName = msg["ToUserName"].ToString();
 
-            _offLine = Offline.ToString();
-            foreach (JObject msg in Offline["AddMsgList"])
+                            GROUP cy = null;
+                            string Content = msg["Content"].ToString();
+                            string MsgId = msg["MsgId"].ToString();
+                            string MsgType = msg["MsgType"].ToString();
+                            if (FromUserName == _group.UserName)
+                            {
+                                string usnm = "@" + function.middlestring(Content, "@", ":<br/>");
+                                cy = getname(usnm);
+                                Content = msg["Content"].ToString().Replace(usnm + ":<br/>", "").Replace("\n", "");
+                            }
+                            if (ToUserName == _group.UserName)
+                                cy = getname(FromUserName);
+                            if (cy == null || !_jianTin)
+                                continue;
+                            //下面处理消息类型
+                            if (MsgType == "1" || MsgType == "10000")
+                            {
+                                //
+                                if (ServerCommon.isLogWechat)
+                                {
+                                    function.logWx("收到消息: " + Content);
+                                }
+
+                                //
+                                string SubMsgType = msg["SubMsgType"].ToString();
+                                //接收到好友纯文本消息
+                                if (SubMsgType == "0" || SubMsgType == "10000")
+                                {
+                                    jzxx(cy, Content, MsgId);
+                                    xxcl(Content.Trim(), cy, MsgId);
+                                    //new AddHandler(xxcl).BeginInvoke(Content.Trim(), cy, MsgId, null, null);
+                                }
+
+                            }
+                            //图片
+                            if (MsgType == "3")
+                                jzxx(cy, "[图片]", MsgId);
+                            //语音
+                            if (MsgType == "34")
+                                jzxx(cy, "[语音]", MsgId);
+                            //视频
+                            if (MsgType == "43")
+                                jzxx(cy, "[视频]", MsgId);
+                            //原创表情
+                            if (MsgType == "47")
+                                jzxx(cy, "[表情]", MsgId);
+
+
+                            //告诉服务器  我收到了消息
+                            _qrWebWeChat.huidiao(ToUserName, FromUserName);
+                        }
+                        */
+
+        }
+
+        /// 正在适配
+        /// <summary>
+        /// 接收的群消息处理（QQ版本）
+        /// </summary>
+        /// <param name="retcode"></param>
+        /// <param name="selector"></param>
+        /// <param name="Offline"></param>
+        public void MessageArrival(long fromGroup, long fromQq, string msg)
+        {
+            //当被监听且是选中的qq群时候，才会收集信息
+            if (CacheData.IsJianTing&& fromGroup==_group.GroupId)
             {
-                //获取消息的基本参数
-                string FromUserName = msg["FromUserName"].ToString();
-                string ToUserName = msg["ToUserName"].ToString();
-
-                GROUP cy = null;
-                string Content = msg["Content"].ToString();
-                string MsgId = msg["MsgId"].ToString();
-                string MsgType = msg["MsgType"].ToString();
-                if (FromUserName == _group.UserName)
-                {
-                    string usnm = "@" + function.middlestring(Content, "@", ":<br/>");
-                    cy = getname(usnm);
-                    Content = msg["Content"].ToString().Replace(usnm + ":<br/>", "").Replace("\n", "");
-                }
-                if (ToUserName == _group.UserName)
-                    cy = getname(FromUserName);
-                if (cy == null || !_jianTin)
-                    continue;
-                //下面处理消息类型
-                if (MsgType == "1" || MsgType == "10000")
+                MessageInfo message = MyMessageUtil.ConvertMessage(msg);
+                if (message.MessageType == 1)//普通纯文本消息
                 {
                     //
                     if (ServerCommon.isLogWechat)
                     {
-                        function.logWx("收到消息: " + Content);
+                        function.logWx("收到消息: " + msg);
                     }
 
-                    //
-                    string SubMsgType = msg["SubMsgType"].ToString();
-                    //接收到好友纯文本消息
-                    if (SubMsgType == "0" || SubMsgType == "10000")
-                    {
-                        jzxx(cy, Content, MsgId);
-                        xxcl(Content.Trim(), cy, MsgId);
-                        //new AddHandler(xxcl).BeginInvoke(Content.Trim(), cy, MsgId, null, null);
-                    }
 
+                    jzxx(_group, fromQq, message.MessageContent, "-9998");//由于没调用酷q方法，没有返回值
+                    /*xxcl(msg.Trim(), cy, MsgId);*/
+                    //new AddHandler(xxcl).BeginInvoke(Content.Trim(), cy, MsgId, null, null);
+                   
                 }
-                //图片
-                if (MsgType == "3")
-                    jzxx(cy, "[图片]", MsgId);
-                //语音
-                if (MsgType == "34")
-                    jzxx(cy, "[语音]", MsgId);
-                //视频
-                if (MsgType == "43")
-                    jzxx(cy, "[视频]", MsgId);
-                //原创表情
-                if (MsgType == "47")
-                    jzxx(cy, "[表情]", MsgId);
-
-
-                //告诉服务器  我收到了消息
-                _qrWebWeChat.huidiao(ToUserName, FromUserName);
+                else//含图片或语音或视频或表情的消息
+                {
+                    jzxx(_group, fromQq, message.MessageContent, "-9998");//由于没调用酷q方法，没有返回值
+                }
             }
-            */
             
-        }
 
+        }
+        ///正在改
+        /// <summary>
+        /// 收到群里用户的纯文本消息开始分析是否下单，上分等操作
+        /// </summary>
+        /// <param name="conter"></param>
+        /// <param name="gr"></param>
+        /// <param name="msgid"></param>
         private void xxcl(string conter, GROUP gr, string msgid)
         {
             /*
@@ -707,6 +761,7 @@ namespace WindowsFormsApplication4
                 }
             }
             */
+            
         }
 
         /// <summary>
@@ -718,6 +773,7 @@ namespace WindowsFormsApplication4
         /// <returns></returns>
         private bool add(GROUP gr, ref int x, int y, int id)
         {
+            /*
             int totalXiazu = gr.benqixiazhu;
 
             if (_guiZe.cshxe[id].dqxz > _guiZe.cshxe[id].xe)
@@ -760,6 +816,7 @@ namespace WindowsFormsApplication4
                 gr.lsxzjf += y;
                 gr.lszjf -= y;
             }
+            */
             return true;
         }
 
@@ -1313,27 +1370,58 @@ namespace WindowsFormsApplication4
         /// <param name="Content"></param>
         private void jzxx(GroupInfo gr,long CurrentLoginQQ, string Content, string msgid)
         {
-            ListViewItem item = new ListViewItem();
-            item.SubItems.Add(gr.GroupName);//群名
-            item.SubItems.Add("群号：" + gr.GroupId);//群号
-            item.SubItems.Add(Content);//发送的群信息
-            item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
-            item.SubItems.Add(msgid);//发送群消息返回的结果
-            item.SubItems.Add(""+CurrentLoginQQ);
-            item.SubItems.Remove(item.SubItems[0]);
-            lvQunXiaoXi.Items.Insert(0, item);
-            List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
-            KeyVal zcs1 = new KeyVal("seq", CacheData.Seq);
-            zcs.Add(zcs1);
-            KeyVal zcs2 = new KeyVal("昵称", gr.GroupName);//群名
-            zcs.Add(zcs2);
-            KeyVal zcs3 = new KeyVal("内容", Content);
-            zcs.Add(zcs3);
-            try
+            GroupMemberInfoWithBocai groupMember = CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic,CurrentLoginQQ);
+            if (groupMember == null)
             {
-                SQL.INSERT(zcs, " liaotian_" + CacheData.Seq);
+                ListViewItem item = new ListViewItem();
+                item.SubItems.Add("非当前群群员"+ CurrentLoginQQ);//群名
+                item.SubItems.Add("非当前群群员");//群号
+                item.SubItems.Add(Content);//发送的群信息
+                item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                item.SubItems.Add(msgid);//发送群消息返回的结果
+                item.SubItems.Add("" + CurrentLoginQQ);
+                item.SubItems.Remove(item.SubItems[0]);
+                lvQunXiaoXi.Items.Insert(0, item);
+                List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
+                KeyVal zcs1 = new KeyVal("seq", "非当前群群员" + CurrentLoginQQ);
+                zcs.Add(zcs1);
+                KeyVal zcs2 = new KeyVal("昵称", "非当前群群员");//群名
+                zcs.Add(zcs2);
+                KeyVal zcs3 = new KeyVal("内容", Content);
+                zcs.Add(zcs3);
+                MyLogUtil.ErrToLog("监听的群" + gr.GroupId + "中收到了一个非此群的群员" + CurrentLoginQQ + "的信息");
+                try
+                {
+                    SQL.INSERT(zcs, " liaotian_" + CacheData.Seq);
+                }
+                catch (Exception ex) { }
             }
-            catch (Exception ex) { }
+            else
+            {
+                ListViewItem item = new ListViewItem();
+                item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName + groupMember.GroupMemberBaseInfo.Number);//群名
+                item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);//群号
+                item.SubItems.Add(Content);//发送的群信息
+                item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                item.SubItems.Add(msgid);//发送群消息返回的结果
+                item.SubItems.Add("" + CurrentLoginQQ);
+                item.SubItems.Remove(item.SubItems[0]);
+                lvQunXiaoXi.Items.Insert(0, item);
+                List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
+                KeyVal zcs1 = new KeyVal("seq", groupMember.GroupMemberBaseInfo.NickName + groupMember.GroupMemberBaseInfo.Number);
+                zcs.Add(zcs1);
+                KeyVal zcs2 = new KeyVal("昵称", groupMember.GroupMemberBaseInfo.NickName);//群名
+                zcs.Add(zcs2);
+                KeyVal zcs3 = new KeyVal("内容", Content);
+                zcs.Add(zcs3);
+                try
+                {
+                    SQL.INSERT(zcs, " liaotian_" + CacheData.Seq);
+                }
+                catch (Exception ex) { }
+            }
+            
+            
         }
 
         /// <summary>
@@ -1413,17 +1501,22 @@ namespace WindowsFormsApplication4
             // _qrWebWeChat.jiaqun(username, listView2.CheckedItems[i].SubItems[1].Text);
             */
         }
-
+        /// 适配完成
+        /// <summary>
+        /// 向指定群发送消息
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button14_Click(object sender, EventArgs e)
         {
-            /*
+            
             if (textBox9.Text == "")
                 return;
-            string msgid = send(textBox9.Text, _group.UserName);
+            string msgid = ""+CacheData.CoolQApi.SendGroupMsg(_group.GroupId,textBox9.Text);
             if (msgid != "")
                 jzxx(_group, textBox9.Text, msgid);
             textBox9.Text = "";
-            */
+            
         }
 
         /// <summary>

@@ -49,7 +49,7 @@ namespace 新一城娱乐系统
             }
             else
             {
-                _mainGroup = frmMain._group;
+                /*_mainGroup = frmMain._group;*/
             }
             if (ServerCommon.isDebug == false)
             {
