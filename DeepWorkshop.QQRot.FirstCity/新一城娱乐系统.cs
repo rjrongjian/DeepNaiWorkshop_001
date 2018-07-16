@@ -118,108 +118,7 @@ namespace WindowsFormsApplication4
         {
             get { return _isFeiPan; }
         }
-        /*
-        public Form1(WebWeChat webchat, GROUP qz, string title)
-        {
-            InitializeComponent();
-            try
-            {
-                if (ConfigHelper.GetAppConfig("qd") != null)
-                {
-                    textBox29.Text = ConfigHelper.GetAppConfig("qd");
-                    textBox30.Text = ConfigHelper.GetAppConfig("dq");
-                    textBox31.Text = ConfigHelper.GetAppConfig("zh");
-                    textBox32.Text = ConfigHelper.GetAppConfig("zhzh");
-                    textBox33.Text = ConfigHelper.GetAppConfig("lhh");
-
-                    checkBox4.Checked = ConfigHelper.GetAppConfig("账单zd").Equals("1");
-                    checkBox5.Checked = ConfigHelper.GetAppConfig("封盘前zd").Equals("1");
-                    checkBox6.Checked = ConfigHelper.GetAppConfig("封盘zd").Equals("1");
-                    checkBox7.Checked = ConfigHelper.GetAppConfig("开奖zd").Equals("1");
-                    checkBox8.Checked = ConfigHelper.GetAppConfig("下注zd").Equals("1");
-                }
-            }
-            catch (Exception ex) { }
-            foreach (lsxe ox in _guiZe.cshxe)
-            {
-                ListViewItem item = new ListViewItem();
-                item.SubItems.Add(ox.name);
-                item.SubItems.Add(ox.gz);
-                item.SubItems.Add(ox.xe.ToString());
-                item.SubItems.Add(ox.id.ToString());
-                item.SubItems.Remove(item.SubItems[0]);
-                listView5.Items.Add(item);
-            }
-            this.Text = title;
-            label8.Text = "当前操作群：" + qz.NickName;
-            //_group = qz;
-            //_qrWebWeChat = webchat;
-            Control.CheckForIllegalCrossThreadCalls = false;
-            //监听到了群消息来了
-            _qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
-            状态栏.Text = "单击启动监听开始获取群消息！";
-
-            //_group.MemberList = _qrWebWeChat.GETgrouplist(_group.DATAlist, _group.URLlist);
-            _dgvThread = new Thread(dgv2);
-            _dgvThread.Start();
-            // GamePlayer
-            timer1.Start();//
-            timer2.Start();//测试网速 测试的是微信的可能要改
-
-            //更新记录期号加载
-            DateTime time1 = DateTime.Now.Date;
-            DateTime time2 = time1.AddDays(1);
-            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
-            foreach (DataRow dr in deset.Rows)
-            {
-                comboBox5.Items.Add(dr[0].ToString());
-            }
-
-
-            //文本消息配置加载
-            DataTable det = SQLiteHelper.ExecuteDataTable("select * from peizhi where Id=1", null);
-            if (det.Rows.Count == 0)
-            {
-                SQL.INSERT(
-"账单,封盘前,封盘,开奖,实时账单,下注,自定义1,自定义2,自定义3,自定义4,自定义5,倍数,最小,最大",
-"'" + textBox12.Text + "','" + textBox13.Text + "|" + comboBox1.Text + "','" + textBox14.Text + "|" + comboBox6.Text + "','" + textBox15.Text +
-"','" + textBox16.Text + "','" + textBox17.Text + "','" + textBox18.Text + "','" + textBox19.Text + "','" + textBox20.Text +
-"','" + textBox21.Text + "','" + textBox22.Text + "','" + textBox24.Text + "','" + textBox25.Text + "','" + textBox26.Text + "'"
-                , "peizhi");
-            }
-            if (det.Rows.Count == 1)
-            {
-                try
-                {
-                    textBox12.Text = det.Rows[0]["账单"].ToString();
-
-                    textBox13.Text = det.Rows[0]["封盘前"].ToString().Split('|')[0];
-                    textBox14.Text = det.Rows[0]["封盘"].ToString();
-
-                    textBox15.Text = det.Rows[0]["开奖"].ToString();
-                    textBox16.Text = det.Rows[0]["实时账单"].ToString();
-                    textBox17.Text = det.Rows[0]["下注"].ToString();
-
-                    textBox18.Text = det.Rows[0]["自定义1"].ToString();
-                    textBox19.Text = det.Rows[0]["自定义2"].ToString();
-                    textBox20.Text = det.Rows[0]["自定义3"].ToString();
-                    textBox21.Text = det.Rows[0]["自定义4"].ToString();
-                    textBox22.Text = det.Rows[0]["自定义5"].ToString();
-
-                    textBox24.Text = det.Rows[0]["倍数"].ToString();
-                    textBox25.Text = det.Rows[0]["最小"].ToString();
-                    textBox26.Text = det.Rows[0]["最大"].ToString();
-
-                    comboBox1.Text = det.Rows[0]["封盘前"].ToString().Split('|')[1];
-                    comboBox6.Text = det.Rows[0]["封盘"].ToString().Split('|')[1];
-                }
-                catch (Exception ex) { MessageBox.Show(ex.Message); }
-            }
-
-            MainPlugin.frmMain = this;
-
-        }
-        */
+        
         public Form1( GroupInfo qz, string title)
         {
             InitializeComponent();
@@ -339,7 +238,7 @@ namespace WindowsFormsApplication4
         /// </summary>
         public void dgv2()
         {
-            
+            /*
             lvChengYuanJiFen.Items.Clear();
             if (_qrWebWeChat.grox == null) return;
             DataTable dt = SQL.SELECTdata("", " Friends_" + CacheData.Seq);
@@ -415,7 +314,7 @@ namespace WindowsFormsApplication4
                 _chengYuanShuLiang++;
             }
             label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
-            
+            */
         }
 
         /// 废弃
@@ -3141,7 +3040,7 @@ namespace WindowsFormsApplication4
             }
             else
             {
-                _qrWebWeChat.jieshu = false;
+                //_qrWebWeChat.jieshu = false;
                 //程序完全退出
                 System.Environment.Exit(0);
             }
