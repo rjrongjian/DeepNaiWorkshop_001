@@ -260,9 +260,10 @@ namespace WindowsFormsApplication4
             _group = qz;
             //_qrWebWeChat = webchat;
             Control.CheckForIllegalCrossThreadCalls = false;
-            
-            _qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
-            
+
+            //此方法已做适配，见MessageArrival(long fromGroup, long fromQq, string msg)
+            //_qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
+
             状态栏.Text = "单击启动监听开始获取群消息！";
 
             //_group.MemberList = _qrWebWeChat.GETgrouplist(_group.DATAlist, _group.URLlist);
@@ -331,29 +332,33 @@ namespace WindowsFormsApplication4
 
         public delegate void AddHandler(string a, GROUP b, string MsgId);
 
-        //群成员列表
+
+        ///正在修改
+        /// <summary>
+        /// 群成员列表
+        /// </summary>
         public void dgv2()
         {
-            /*
+            
             lvChengYuanJiFen.Items.Clear();
             if (_qrWebWeChat.grox == null) return;
-            DataTable dt = SQL.SELECTdata("", " Friends_" + _group.seq);
+            DataTable dt = SQL.SELECTdata("", " Friends_" + CacheData.Seq);
             //2017-05-04 08:45:40
             DateTime time1 = DateTime.Now.Date;
             DateTime time2 = time1.AddDays(1);
-            DataTable deset = SQLiteHelper.ExecuteDataTable("select seq,sum(盈亏)  from NameInt_" + _group.seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "' group by seq", null);
+            DataTable deset = SQLiteHelper.ExecuteDataTable("select seq,sum(盈亏)  from NameInt_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "' group by seq", null);
 
-            foreach (GROUP jp in _group.MemberList)
+            foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
                 ListViewItem item = new ListViewItem();
-                item.Tag = jp.seq;
-                item.SubItems.Add(jp.NickName);
-                DataRow[] dR = dt.Select("seq='" + jp.seq + "'");
+                item.Tag = jp.Seq;
+                item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+                DataRow[] dR = dt.Select("seq='" + jp.Seq + "'");
                 DataRow dr = dt.NewRow();
                 if (dR.Length == 0)
                 {
-                    string nickname = jp.NickName.Replace(",", "").Replace("/", "");
-                    SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.seq + "','" + nickname + "','否','0','0','0'", " Friends_" + _group.seq);
+                    string nickname = jp.GroupMemberBaseInfo.NickName.Replace(",", "").Replace("/", "");
+                    SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.Seq + "','" + nickname + "','否','0','0','0'", " Friends_" + CacheData.Seq);
 
                     dr[4] = "否";
                     dr[5] = "0";
@@ -372,7 +377,7 @@ namespace WindowsFormsApplication4
                 {
                     item.SubItems.Add(jp.RemarkName);//备注
                 }
-                item.SubItems.Add(jp.UserName);
+                item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
 
                 item.SubItems.Add(dr[3].ToString());//推荐人
                 item.SubItems.Add(dr[4].ToString());//是否入局
@@ -394,22 +399,23 @@ namespace WindowsFormsApplication4
 
                 try//今日战绩
                 {
-                    item.SubItems.Add(deset.Select("seq='" + jp.seq + "'")[0][1].ToString());
+                    item.SubItems.Add(deset.Select("seq='" + jp.Seq + "'")[0][1].ToString());
                 }
                 catch (Exception ex) { item.SubItems.Add("0"); }
 
                 item.SubItems.Add("");//本期下注
-                item.SubItems.Add(jp.seq);
+                item.SubItems.Add(jp.Seq);
                 item.SubItems.Add(_chengYuanShuLiang.ToString());
+                item.SubItems.Add(""+jp.GroupMemberBaseInfo.Number);//多加一个字段，代表此会员的qq号
                 item.SubItems.Remove(item.SubItems[0]);
                 //if (jp.UserName == _qrWebWeChat.UserName)
                 //   continue;
                 lvChengYuanJiFen.Items.Add(item);
-                jp.id = _chengYuanShuLiang;
+                jp.Id = _chengYuanShuLiang;
                 _chengYuanShuLiang++;
             }
             label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
-            */
+            
         }
 
         /// 废弃
@@ -513,9 +519,9 @@ namespace WindowsFormsApplication4
 
 
                     jzxx(_group, fromQq, message.MessageContent, "-9998");//由于没调用酷q方法，没有返回值
-                    /*xxcl(msg.Trim(), cy, MsgId);*/
-                    //new AddHandler(xxcl).BeginInvoke(Content.Trim(), cy, MsgId, null, null);
-                   
+                    xxcl(msg.Trim(), _group, fromQq, "-9998");//由于没调用酷q方法，没有返回值
+                                                  //new AddHandler(xxcl).BeginInvoke(Content.Trim(), cy, MsgId, null, null);
+
                 }
                 else//含图片或语音或视频或表情的消息
                 {
@@ -526,15 +532,17 @@ namespace WindowsFormsApplication4
 
         }
         ///正在改
+        ///注意：此方法中_group 代表群 gr应该代表群员
         /// <summary>
         /// 收到群里用户的纯文本消息开始分析是否下单，上分等操作
         /// </summary>
         /// <param name="conter"></param>
         /// <param name="gr"></param>
         /// <param name="msgid"></param>
-        private void xxcl(string conter, GROUP gr, string msgid)
+        private void xxcl(string conter, GroupInfo gr,long fromQQ, string msgid)
         {
-            /*
+            //当前说话的qq的详情
+            GroupMemberInfoWithBocai groupMember = CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, fromQQ);
             if (conter.IndexOf("上") == 0 || conter.IndexOf("下") == 0 || conter.IndexOf("回") == 0)
             {
                 playPointSound();
@@ -542,31 +550,32 @@ namespace WindowsFormsApplication4
 
             if (conter == "撤销" || conter == "取消")
             {
-                string str = "@" + gr.NickName;
-                if (!gr.sfrj)
+                string str = CoolQCode.At(fromQQ);//酷q中@某人
+                if (!groupMember.sfrj)
                 {
                     str += " 请先入局！";
-                    send(str, _group.UserName);
+                    
+                    send(gr.GroupId, str);//酷q发送群消息
                     jzxx(_group, str, msgid);
                     return;
                 }
                 if (_fengPan == false)
                 {
                     //
-                    int benQixiaZhu = gr.benqixiazhu;
+                    int benQixiaZhu = groupMember.benqixiazhu;
 
-                    gr.conter = "";
-                    gr.zongjifen += gr.benqixiazhu;
-                    _eDuMax -= gr.benqixiazhu;
-                    gr.benqixiazhu = 0;
-                    gr.xiazhutongji = new xztj();
-                    lvChengYuanJiFen.Items[gr.id].SubItems[8].Text = "";
+                    groupMember.conter = "";
+                    groupMember.zongjifen += groupMember.benqixiazhu;
+                    _eDuMax -= groupMember.benqixiazhu;
+                    groupMember.benqixiazhu = 0;
+                    groupMember.xiazhutongji = new xztj();
+                    lvChengYuanJiFen.Items[groupMember.Id].SubItems[8].Text = "";
 
-                    lvChengYuanJiFen.Items[gr.id].SubItems[5].Text = gr.zongjifen.ToString();
+                    lvChengYuanJiFen.Items[groupMember.Id].SubItems[5].Text = groupMember.zongjifen.ToString();
                     str += " 撤单成功！";//+ gr.zongjifen.ToString();
 
                     //
-                    _zongJiFen += gr.benqixiazhu;
+                    _zongJiFen += groupMember.benqixiazhu;
                     label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
 
                 }
@@ -574,51 +583,52 @@ namespace WindowsFormsApplication4
                 {
                     str += " 已锁盘，取消失败！";
                 }
-                send(str, _group.UserName);
+                
+                send(gr.GroupId, str);//酷q发送群消息
                 jzxx(_group, str, msgid);
 
 
             }
             if (conter == "查")
             {
-                if (!gr.sfrj)
+                if (!groupMember.sfrj)
                 {
-                    string st = "@" + gr.NickName;
+                    string st = CoolQCode.At(fromQQ);//酷q中@某人
                     st += " 请先入局！";
-                    send(st, _group.UserName);
+                    send(gr.GroupId, st);//酷q发送群消息
                     jzxx(_group, st, msgid);
                     return;
                 }
-                string str = "@" + gr.NickName + "\n余量：" + gr.zongjifen.ToString() + "\n当前攻击:" + gr.conter;
-                send(str, _group.UserName);
+                string str = CoolQCode.At(fromQQ) + "\n余量：" + groupMember.zongjifen.ToString() + "\n当前攻击:" + groupMember.conter;
+                send(gr.GroupId, str);//酷q发送群消息
                 jzxx(_group, str, msgid);
                 //查分
                 return;
             }
             if (conter == "查流水" && cbChaLiuShui.Checked)
             {
-                if (!gr.sfrj)
+                if (!groupMember.sfrj)
                 {
-                    string st = "@" + gr.NickName;
+                    string st = CoolQCode.At(fromQQ);//酷q中@某人
                     st += " 请先入局！";
-                    send(st, _group.UserName);
+                    send(gr.GroupId, st);//酷q发送群消息
                     jzxx(_group, st, msgid);
                     return;
                 }
                 //
                 DateTime time1 = DateTime.Now.Date;
                 DateTime time2 = time1.AddDays(1);
-                string strSql = "select sum(实际下注),sum(实际中奖) from liushuiAct_" + _group.seq
+                string strSql = "select sum(实际下注),sum(实际中奖) from liushuiAct_" + CacheData.Seq
                     + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00")
-                    + "' and seq='" + gr.seq
+                    + "' and seq='" + groupMember.Seq
                     + "' group by seq";
                 DataTable dtAct = SQLiteHelper.ExecuteDataTable(strSql, null);
 
 
-                string strSql2 = "select 期号,实际中奖 from liushuiAct_" + _group.seq
+                string strSql2 = "select 期号,实际中奖 from liushuiAct_" + CacheData.Seq
                  + " where 实际中奖>0 and Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '"
                  + time2.ToString("yyyy-MM-dd 00:00:00")
-                 + "' and seq='" + gr.seq + "'"
+                 + "' and seq='" + groupMember.Seq + "'"
                  ;
                 DataTable dtAct2 = SQLiteHelper.ExecuteDataTable(strSql2, null);
 
@@ -637,16 +647,16 @@ namespace WindowsFormsApplication4
                     sjzj = dtAct.Rows[0][1].ToString();
                 }
                 //
-                string str = string.Format("@{0} {1}：\n【使用分数：{2}】\n【剩余：{3}】\n【今日得分：{4}】\n【今日流水：{5}】\n【下单成功期：】\n{6}",
-                        gr.NickName,
+                string str = string.Format("{0} {1}：\n【使用分数：{2}】\n【剩余：{3}】\n【今日得分：{4}】\n【今日流水：{5}】\n【下单成功期：】\n{6}",
+                        CoolQCode.At(fromQQ),
                         DateTime.Now.ToString("MM-dd HH:mm:ss"),
-                       gr.benqixiazhu,//本期下注
-                       gr.zongjifen,
+                       groupMember.benqixiazhu,//本期下注
+                       groupMember.zongjifen,
                        sjzj,
                        sjxz,
                        xdcg);
 
-                send(str, _group.UserName);
+                send(gr.GroupId, str);//酷q发送群消息
                 jzxx(_group, str, msgid);
 
 
@@ -655,11 +665,11 @@ namespace WindowsFormsApplication4
             }
             if (conter.IndexOf("查") == 0 || conter.IndexOf("上") == 0)
             {
-                if (!gr.sfrj)
+                if (!groupMember.sfrj)
                 {
-                    string st = "@" + gr.NickName;
+                    string st = CoolQCode.At(fromQQ);//酷q中@某人
                     st += " 请先入局！";
-                    send(st, _group.UserName);
+                    send(gr.GroupId, st);//酷q发送群消息
                     jzxx(_group, st, msgid);
                     return;
                 }
@@ -669,10 +679,10 @@ namespace WindowsFormsApplication4
                     if (result != 0)
                     {
                         ListViewItem item = new ListViewItem();
-                        item.SubItems.Add(gr.NickName);
-                        item.SubItems.Add(gr.RemarkName);
-                        item.SubItems.Add(gr.id.ToString());
-                        item.SubItems.Add("微信");
+                        item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);
+                        item.SubItems.Add(groupMember.RemarkName);
+                        item.SubItems.Add(groupMember.Id.ToString());
+                        item.SubItems.Add("QQ");
                         item.SubItems.Add(result.ToString());
                         item.SubItems.Remove(item.SubItems[0]);
                         listView3.Items.Add(item);
@@ -683,38 +693,41 @@ namespace WindowsFormsApplication4
             }
             if (conter == "回" || conter == "下")
             {
-                if (!gr.sfrj)
+                if (!groupMember.sfrj)
                 {
-                    string st = "@" + gr.NickName;
+                    string st = CoolQCode.At(fromQQ);//酷q中@某人
                     st += " 请先入局！";
-                    send(st, _group.UserName);
+                    send(gr.GroupId, st);//酷q发送群消息
                     jzxx(_group, st, msgid);
                     return;
                 }
-                if (gr.zongjifen > 0)
+                if (groupMember.zongjifen > 0)
                 {
                     ListViewItem item = new ListViewItem();
-                    item.SubItems.Add(gr.NickName);
-                    item.SubItems.Add(gr.RemarkName);
-                    item.SubItems.Add(gr.id.ToString());
-                    item.SubItems.Add("微信");
-                    item.SubItems.Add(gr.zongjifen.ToString());
+                    item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);
+                    item.SubItems.Add(groupMember.RemarkName);
+                    item.SubItems.Add(groupMember.Id.ToString());
+                    item.SubItems.Add("QQ");
+                    item.SubItems.Add(groupMember.zongjifen.ToString());
                     item.SubItems.Remove(item.SubItems[0]);
                     listView4.Items.Add(item);
                 }
                 else
                 {
-                    jzxx(getname(_qrWebWeChat.UserName), "@" + gr.NickName + " 能量不足，拒绝下分", send("@" + gr.NickName + " 能量不足，拒绝下分", _group.UserName));
+                    string messageId = send(gr.GroupId, CoolQCode.At(fromQQ) + " 能量不足，拒绝下分");//酷q发送群消息
+                    //jzxx(getname(_qrWebWeChat.UserName), CoolQCode.At(fromQQ) + " 能量不足，拒绝下分", ""+messageId);
+                    jzxx(gr, CoolQCode.At(fromQQ) + " 能量不足，拒绝下分",  messageId);
                 }
                 return;
             }
             if (conter.IndexOf("回") == 0 || conter.IndexOf("下") == 0)
             {
-                if (!gr.sfrj)
+                if (!groupMember.sfrj)
                 {
-                    string st = "@" + gr.NickName;
+                    string st = CoolQCode.At(fromQQ);
                     st += " 请先入局！";
-                    send(st, _group.UserName);
+                    //send(st, _group.UserName);
+                    send(gr.GroupId, st);//酷q发送群消息
                     jzxx(_group, st, msgid);
                     return;
                 }
@@ -723,16 +736,17 @@ namespace WindowsFormsApplication4
                 {
                     if (result != 0)
                     {
-                        if (result > gr.zongjifen)
+                        if (result > groupMember.zongjifen)
                         {
-                            jzxx(getname(_qrWebWeChat.UserName), "@" + gr.NickName + " 能量不足，拒绝下分", send("@" + gr.NickName + " 能量不足，拒绝下分", _group.UserName));
+                            string messageIdTemp = send(gr.GroupId, CoolQCode.At(fromQQ) + " 能量不足，拒绝下分");//酷q发送群消息
+                            jzxx(_group, CoolQCode.At(fromQQ) + " 能量不足，拒绝下分",  messageIdTemp);
                             return;
                         }
                         ListViewItem item = new ListViewItem();
-                        item.SubItems.Add(gr.NickName);
-                        item.SubItems.Add(gr.RemarkName);
-                        item.SubItems.Add(gr.id.ToString());
-                        item.SubItems.Add("微信");
+                        item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);
+                        item.SubItems.Add(groupMember.RemarkName);
+                        item.SubItems.Add(groupMember.Id.ToString());
+                        item.SubItems.Add("QQ");
                         item.SubItems.Add(result.ToString());
                         item.SubItems.Remove(item.SubItems[0]);
                         listView4.Items.Add(item);
@@ -742,7 +756,7 @@ namespace WindowsFormsApplication4
                 //球道、单球（单、双、大、小）、总和（单、双、大、小）、总和组合（大单、大双、小单、小双）、龙、虎、合
                 return;
             }
-            if (!gr.sfrj)
+            if (!groupMember.sfrj)
                 return;
 
             if (_qiuDaosl != 0 && _fengPan == false)
@@ -755,15 +769,17 @@ namespace WindowsFormsApplication4
                             .Replace("  /", "/")
                             .Replace("  /", "/")
                             .Replace("  /", "/");
-                if (xiazhu(conter.Split(' '), gr) == 1)
+                if (xiazhu(conter.Split(' '), gr, groupMember) == 1)
                 {
-                    jzxx(_group, "@" + gr.NickName + "不满足攻击条件", send("@" + gr.NickName + "不满足攻击条件", _group.UserName));
+                    string messageIdTemp = send(gr.GroupId, CoolQCode.At(fromQQ) + "不满足攻击条件");//酷q发送群消息
+                    jzxx(_group, CoolQCode.At(fromQQ) + "不满足攻击条件", ""+messageIdTemp);
                 }
             }
-            */
+            
             
         }
 
+        ///正在改
         /// <summary>
         /// 增加下注
         /// </summary>
@@ -771,10 +787,10 @@ namespace WindowsFormsApplication4
         /// <param name="x">数据表</param>
         /// <param name="y">积分</param>
         /// <returns></returns>
-        private bool add(GROUP gr, ref int x, int y, int id)
+        private bool add(GroupInfo gr,GroupMemberInfoWithBocai groupMember, ref int x, int y, int id)
         {
-            /*
-            int totalXiazu = gr.benqixiazhu;
+            
+            int totalXiazu = groupMember.benqixiazhu;
 
             if (_guiZe.cshxe[id].dqxz > _guiZe.cshxe[id].xe)
                 return false;
@@ -790,19 +806,19 @@ namespace WindowsFormsApplication4
             {
                 return false;
             }
-            if (gr.lszjf < 1)
+            if (groupMember.lszjf < 1)
                 return false;
-            if (gr.lszjf < y)
+            if (groupMember.lszjf < y)
             {
                 lock (obj)
                 {
-                    _zongJiFen -= gr.lszjf;
-                    _lsEDu += gr.lszjf;
-                    _guiZe.cshxe[id].dqxz += gr.lszjf;
+                    _zongJiFen -= groupMember.lszjf;
+                    _lsEDu += groupMember.lszjf;
+                    _guiZe.cshxe[id].dqxz += groupMember.lszjf;
                 }
-                x += gr.lszjf;
-                gr.lsxzjf += gr.lszjf;
-                gr.lszjf = 0;
+                x += groupMember.lszjf;
+                groupMember.lsxzjf += groupMember.lszjf;
+                groupMember.lszjf = 0;
             }
             else
             {
@@ -813,22 +829,28 @@ namespace WindowsFormsApplication4
                     _guiZe.cshxe[id].dqxz += y;
                 }
                 x += y;
-                gr.lsxzjf += y;
-                gr.lszjf -= y;
+                groupMember.lsxzjf += y;
+                groupMember.lszjf -= y;
             }
-            */
+            
             return true;
         }
-
-        private int xiazhu(string[] contstring, GROUP gr)
+        /// 正在适配
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="contstring"></param>
+        /// <param name="gr"></param>
+        /// <returns></returns>
+        private int xiazhu(string[] contstring, GroupInfo gr,GroupMemberInfoWithBocai groupMember)
         {
-            /*
+            
             xztj lsxz = new xztj();
             try
             {
                 string con = "";
-                gr.lszjf = gr.zongjifen;
-                gr.lsxzjf = 0;
+                groupMember.lszjf = groupMember.zongjifen;
+                groupMember.lsxzjf = 0;
                 _lsEDu = 0;
                 foreach (string xz in contstring)
                 {
@@ -858,7 +880,7 @@ namespace WindowsFormsApplication4
                         {
                             if (_qiuDaoHe)
                             {
-                                if (!add(gr, ref  lsxz.ZHDXDS[wz], int.Parse(fz[1]), 14 + wz))
+                                if (!add(gr, groupMember, ref  lsxz.ZHDXDS[wz], int.Parse(fz[1]), 14 + wz))
                                     return 1;
                                 con += xz;
                                 continue;
@@ -867,31 +889,31 @@ namespace WindowsFormsApplication4
                             {
                                 if (_qiuDao1)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[0, wz], int.Parse(fz[1]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[0, wz], int.Parse(fz[1]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao2)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[1, wz], int.Parse(fz[1]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[1, wz], int.Parse(fz[1]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao3)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[2, wz], int.Parse(fz[1]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[2, wz], int.Parse(fz[1]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao4)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[3, wz], int.Parse(fz[1]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[3, wz], int.Parse(fz[1]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao5)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[4, wz], int.Parse(fz[1]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[4, wz], int.Parse(fz[1]), wz)) return 1;
                                 }
                                 else
                                     return 5;
@@ -912,7 +934,7 @@ namespace WindowsFormsApplication4
                             wz = 3;
                         if (wz != -1 && _qiuDaoHe)
                         {
-                            if (!add(gr, ref  lsxz.ZHZHDXDS[wz], int.Parse(fz[1]), 18 + wz)) return 1;
+                            if (!add(gr, groupMember, ref  lsxz.ZHZHDXDS[wz], int.Parse(fz[1]), 18 + wz)) return 1;
                             con += xz;
                             continue;
                         }
@@ -926,31 +948,31 @@ namespace WindowsFormsApplication4
                                 wz = int.Parse(fz[0].Substring(i, 1));
                                 if (_qiuDao1)
                                 {
-                                    if (!add(gr, ref  lsxz.QD[0, wz], int.Parse(fz[1]), 4 + wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.QD[0, wz], int.Parse(fz[1]), 4 + wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao2)
                                 {
-                                    if (!add(gr, ref  lsxz.QD[1, wz], int.Parse(fz[1]), 4 + wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.QD[1, wz], int.Parse(fz[1]), 4 + wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao3)
                                 {
-                                    if (!add(gr, ref  lsxz.QD[2, wz], int.Parse(fz[1]), 4 + wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.QD[2, wz], int.Parse(fz[1]), 4 + wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao4)
                                 {
-                                    if (!add(gr, ref  lsxz.QD[3, wz], int.Parse(fz[1]), 4 + wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.QD[3, wz], int.Parse(fz[1]), 4 + wz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao5)
                                 {
-                                    if (!add(gr, ref  lsxz.QD[4, wz], int.Parse(fz[1]), 4 + wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.QD[4, wz], int.Parse(fz[1]), 4 + wz)) return 1;
                                 }
                                 else
                                     return 5;
@@ -981,35 +1003,35 @@ namespace WindowsFormsApplication4
                                 if (fz[0].IndexOf("1") != -1 || fz[0].IndexOf("万") != -1)
                                     if (_qiuDao1)
                                     {
-                                        if (!add(gr, ref  lsxz.QD[0, wz], int.Parse(fz[2]), 4 + wz)) return 1;
+                                        if (!add(gr, groupMember, ref  lsxz.QD[0, wz], int.Parse(fz[2]), 4 + wz)) return 1;
                                     }
                                     else
                                         return 5;
                                 if (fz[0].IndexOf("2") != -1 || fz[0].IndexOf("千") != -1)
                                     if (_qiuDao2)
                                     {
-                                        if (!add(gr, ref  lsxz.QD[1, wz], int.Parse(fz[2]), 4 + wz)) return 1;
+                                        if (!add(gr, groupMember, ref  lsxz.QD[1, wz], int.Parse(fz[2]), 4 + wz)) return 1;
                                     }
                                     else
                                         return 5;
                                 if (fz[0].IndexOf("3") != -1 || fz[0].IndexOf("百") != -1)
                                     if (_qiuDao3)
                                     {
-                                        if (!add(gr, ref  lsxz.QD[2, wz], int.Parse(fz[2]), 4 + wz)) return 1;
+                                        if (!add(gr, groupMember, ref  lsxz.QD[2, wz], int.Parse(fz[2]), 4 + wz)) return 1;
                                     }
                                     else
                                         return 5;
                                 if (fz[0].IndexOf("4") != -1 || fz[0].IndexOf("十") != -1)
                                     if (_qiuDao4)
                                     {
-                                        if (!add(gr, ref  lsxz.QD[3, wz], int.Parse(fz[2]), 4 + wz)) return 1;
+                                        if (!add(gr, groupMember, ref  lsxz.QD[3, wz], int.Parse(fz[2]), 4 + wz)) return 1;
                                     }
                                     else
                                         return 5;
                                 if (fz[0].IndexOf("5") != -1 || fz[0].IndexOf("个") != -1)
                                     if (_qiuDao5)
                                     {
-                                        if (!add(gr, ref  lsxz.QD[4, wz], int.Parse(fz[2]), 4 + wz)) return 1;
+                                        if (!add(gr, groupMember, ref  lsxz.QD[4, wz], int.Parse(fz[2]), 4 + wz)) return 1;
                                     }
                                     else
                                         return 5;
@@ -1038,35 +1060,35 @@ namespace WindowsFormsApplication4
                             if (fz[0].IndexOf("1") != -1 || fz[0].IndexOf("万") != -1)
                                 if (_qiuDao1)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[0, wz], int.Parse(fz[2]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[0, wz], int.Parse(fz[2]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (fz[0].IndexOf("2") != -1 || fz[0].IndexOf("千") != -1)
                                 if (_qiuDao2)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[1, wz], int.Parse(fz[2]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[1, wz], int.Parse(fz[2]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (fz[0].IndexOf("3") != -1 || fz[0].IndexOf("百") != -1)
                                 if (_qiuDao3)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[2, wz], int.Parse(fz[2]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[2, wz], int.Parse(fz[2]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (fz[0].IndexOf("4") != -1 || fz[0].IndexOf("十") != -1)
                                 if (_qiuDao4)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[3, wz], int.Parse(fz[2]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[3, wz], int.Parse(fz[2]), wz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (fz[0].IndexOf("5") != -1 || fz[0].IndexOf("个") != -1)
                                 if (_qiuDao5)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[4, wz], int.Parse(fz[2]), wz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[4, wz], int.Parse(fz[2]), wz)) return 1;
                                 }
                                 else
                                     return 5;
@@ -1136,10 +1158,10 @@ namespace WindowsFormsApplication4
                             {
                                 if (dszh == 0)
                                 {
-                                    if (!add(gr, ref  lsxz.ZHZHDXDS[wzz], int.Parse(dq[1]), 18 + wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.ZHZHDXDS[wzz], int.Parse(dq[1]), 18 + wzz)) return 1;
                                 }
                                 else
-                                    if (!add(gr, ref  lsxz.ZHDXDS[wzz], int.Parse(dq[1]), 14 + wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.ZHDXDS[wzz], int.Parse(dq[1]), 14 + wzz)) return 1;
                                 con += xz;
                                 continue;
                             }
@@ -1147,31 +1169,31 @@ namespace WindowsFormsApplication4
                             {
                                 if (_qiuDao1)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[0, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[0, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao2)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[1, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[1, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao3)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[2, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[2, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao4)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[3, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[3, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                                 if (_qiuDao5)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[4, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[4, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
@@ -1189,35 +1211,35 @@ namespace WindowsFormsApplication4
                             if (dq[0].IndexOf("1") != -1 || dq[0].IndexOf("万") != -1)
                                 if (_qiuDao1)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[0, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[0, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (dq[0].IndexOf("2") != -1 || dq[0].IndexOf("千") != -1)
                                 if (_qiuDao2)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[1, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[1, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (dq[0].IndexOf("3") != -1 || dq[0].IndexOf("百") != -1)
                                 if (_qiuDao3)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[2, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[2, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (dq[0].IndexOf("4") != -1 || dq[0].IndexOf("十") != -1)
                                 if (_qiuDao4)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[3, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[3, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
                             if (dq[0].IndexOf("5") != -1 || dq[0].IndexOf("个") != -1)
                                 if (_qiuDao5)
                                 {
-                                    if (!add(gr, ref  lsxz.DXDS[4, wzz], int.Parse(dq[1]), wzz)) return 1;
+                                    if (!add(gr, groupMember, ref  lsxz.DXDS[4, wzz], int.Parse(dq[1]), wzz)) return 1;
                                 }
                                 else
                                     return 5;
@@ -1230,19 +1252,19 @@ namespace WindowsFormsApplication4
 
                     if (xz.IndexOf("龙") == 0)
                     {
-                        if (!add(gr, ref  lsxz.LHH[0], int.Parse(xz.Replace("龙", "")), 22)) return 1;
+                        if (!add(gr, groupMember, ref  lsxz.LHH[0], int.Parse(xz.Replace("龙", "")), 22)) return 1;
                         con += xz;
                         continue;
                     }
                     if (xz.IndexOf("虎") == 0)
                     {
-                        if (!add(gr, ref  lsxz.LHH[1], int.Parse(xz.Replace("虎", "")), 23)) return 1;
+                        if (!add(gr, groupMember, ref  lsxz.LHH[1], int.Parse(xz.Replace("虎", "")), 23)) return 1;
                         con += xz;
                         continue;
                     }
                     if (xz.IndexOf("和") == 0 || xz.IndexOf("合") == 0)
                     {
-                        if (!add(gr, ref  lsxz.LHH[2], int.Parse(xz.Replace("合", "").Replace("和", "")), 24)) return 1;
+                        if (!add(gr, groupMember, ref  lsxz.LHH[2], int.Parse(xz.Replace("合", "").Replace("和", "")), 24)) return 1;
                         con += xz;
                         continue;
                     }
@@ -1259,64 +1281,64 @@ namespace WindowsFormsApplication4
                     for (int u = 0; u < 10; u++)
                     {
                         for (int x = 0; x < 5; x++)
-                            gr.xiazhutongji.QD[x, u] += lsxz.QD[x, u];
+                            groupMember.xiazhutongji.QD[x, u] += lsxz.QD[x, u];
                     }
                     for (int u = 0; u < 4; u++)
                     {
-                        gr.xiazhutongji.DXDS[0, u] += lsxz.DXDS[0, u];
-                        gr.xiazhutongji.DXDS[1, u] += lsxz.DXDS[1, u];
-                        gr.xiazhutongji.DXDS[2, u] += lsxz.DXDS[2, u];
-                        gr.xiazhutongji.DXDS[3, u] += lsxz.DXDS[3, u];
-                        gr.xiazhutongji.DXDS[4, u] += lsxz.DXDS[4, u];
+                        groupMember.xiazhutongji.DXDS[0, u] += lsxz.DXDS[0, u];
+                        groupMember.xiazhutongji.DXDS[1, u] += lsxz.DXDS[1, u];
+                        groupMember.xiazhutongji.DXDS[2, u] += lsxz.DXDS[2, u];
+                        groupMember.xiazhutongji.DXDS[3, u] += lsxz.DXDS[3, u];
+                        groupMember.xiazhutongji.DXDS[4, u] += lsxz.DXDS[4, u];
 
-                        gr.xiazhutongji.ZHDXDS[u] += lsxz.ZHDXDS[u];
-                        gr.xiazhutongji.ZHZHDXDS[u] += lsxz.ZHZHDXDS[u];
+                        groupMember.xiazhutongji.ZHDXDS[u] += lsxz.ZHDXDS[u];
+                        groupMember.xiazhutongji.ZHZHDXDS[u] += lsxz.ZHZHDXDS[u];
                     }
-                    gr.xiazhutongji.LHH[0] += lsxz.LHH[0];
-                    gr.xiazhutongji.LHH[1] += lsxz.LHH[1];
-                    gr.xiazhutongji.LHH[2] += lsxz.LHH[2];
+                    groupMember.xiazhutongji.LHH[0] += lsxz.LHH[0];
+                    groupMember.xiazhutongji.LHH[1] += lsxz.LHH[1];
+                    groupMember.xiazhutongji.LHH[2] += lsxz.LHH[2];
 
-                    gr.zongjifen = gr.lszjf;
-                    gr.conter += (con + ";");
-                    gr.benqixiazhu += gr.lsxzjf;
+                    groupMember.zongjifen = groupMember.lszjf;
+                    groupMember.conter += (con + ";");
+                    groupMember.benqixiazhu += groupMember.lsxzjf;
 
                     //
-                    lvChengYuanJiFen.Items[gr.id].SubItems[8].Text = gr.conter;
-                    lvChengYuanJiFen.Items[gr.id].SubItems[5].Text = gr.zongjifen.ToString();
+                    lvChengYuanJiFen.Items[groupMember.Id].SubItems[8].Text = groupMember.conter;
+                    lvChengYuanJiFen.Items[groupMember.Id].SubItems[5].Text = groupMember.zongjifen.ToString();
                     SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                                "'" + gr.NickName + "','"
-                                + gr.seq + "','"
+                                "'" + groupMember.GroupMemberBaseInfo.NickName + "','"
+                                + groupMember.Seq + "','"
                                 + _kaiJiangData.qihao
                                 + "','下注','"
-                                + gr.lsxzjf.ToString()
-                                + "','" + gr.zongjifen.ToString()
-                                + "','" + gr.conter
-                                + "'", " liushui_" + _group.seq);
-                    label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + (_zongJiFen - gr.lsxzjf).ToString();
+                                + groupMember.lsxzjf.ToString()
+                                + "','" + groupMember.zongjifen.ToString()
+                                + "','" + groupMember.conter
+                                + "'", " liushui_" + CacheData.Seq);
+                    label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + (_zongJiFen - groupMember.lsxzjf).ToString();
                     //加本期合计
                     for (int u = 0; u < 10; u++)
                     {
                         for (int x = 0; x < 5; x++)
-                            _group.xiazhutongji.QD[x, u] += lsxz.QD[x, u];
+                            groupMember.xiazhutongji.QD[x, u] += lsxz.QD[x, u];
                     }
                     for (int u = 0; u < 4; u++)
                     {
-                        _group.xiazhutongji.DXDS[0, u] += lsxz.DXDS[0, u];
-                        _group.xiazhutongji.DXDS[1, u] += lsxz.DXDS[1, u];
-                        _group.xiazhutongji.DXDS[2, u] += lsxz.DXDS[2, u];
-                        _group.xiazhutongji.DXDS[3, u] += lsxz.DXDS[3, u];
-                        _group.xiazhutongji.DXDS[4, u] += lsxz.DXDS[4, u];
+                        groupMember.xiazhutongji.DXDS[0, u] += lsxz.DXDS[0, u];
+                        groupMember.xiazhutongji.DXDS[1, u] += lsxz.DXDS[1, u];
+                        groupMember.xiazhutongji.DXDS[2, u] += lsxz.DXDS[2, u];
+                        groupMember.xiazhutongji.DXDS[3, u] += lsxz.DXDS[3, u];
+                        groupMember.xiazhutongji.DXDS[4, u] += lsxz.DXDS[4, u];
 
-                        _group.xiazhutongji.ZHDXDS[u] += lsxz.ZHDXDS[u];
-                        _group.xiazhutongji.ZHZHDXDS[u] += lsxz.ZHZHDXDS[u];
+                        groupMember.xiazhutongji.ZHDXDS[u] += lsxz.ZHDXDS[u];
+                        groupMember.xiazhutongji.ZHZHDXDS[u] += lsxz.ZHZHDXDS[u];
                     }
-                    _group.xiazhutongji.LHH[0] += lsxz.LHH[0];
-                    _group.xiazhutongji.LHH[1] += lsxz.LHH[1];
-                    _group.xiazhutongji.LHH[2] += lsxz.LHH[2];
+                    groupMember.xiazhutongji.LHH[0] += lsxz.LHH[0];
+                    groupMember.xiazhutongji.LHH[1] += lsxz.LHH[1];
+                    groupMember.xiazhutongji.LHH[2] += lsxz.LHH[2];
 
-                    _group.zongjifen = _group.lszjf;
-                    _group.conter += (con + ";");
-                    _group.benqixiazhu += _group.lsxzjf;
+                    groupMember.zongjifen = groupMember.lszjf;
+                    groupMember.conter += (con + ";");
+                    groupMember.benqixiazhu += groupMember.lsxzjf;
                     //
                     return 0;
                 }
@@ -1324,14 +1346,12 @@ namespace WindowsFormsApplication4
             }
             catch (Exception ex)
             {
-                string msgid = send("@" + gr.NickName + " 攻击格式错误！", _group.UserName);
-                if (msgid != "")
-                    jzxx(_group, "@" + gr.NickName + " 攻击格式错误！", msgid);
+                string msgid = send(gr.GroupId, CoolQCode.At(groupMember.GroupMemberBaseInfo.Number)+ "攻击格式错误！");//酷q发送群消息
+                //if (msgid != "")
+                jzxx(_group, CoolQCode.At(groupMember.GroupMemberBaseInfo.Number) + " 攻击格式错误！", msgid);
                 return 3;
             }
-            */
-            //自己添加
-            return 0;
+            
         }
 
         /// <summary>
@@ -1430,9 +1450,9 @@ namespace WindowsFormsApplication4
         /// <param name="msg"></param>
         /// <param name="UserName"></param>
         /// <returns></returns>
-        private string send(string msg, string UserName)
+        private string send( long groupId,string msg)
         {
-            /*
+            
             //
             if (ServerCommon.isLogWechat)
             {
@@ -1440,10 +1460,8 @@ namespace WindowsFormsApplication4
             }
 
             //
-            string xx = _qrWebWeChat.SendMessage(msg, UserName);
-            return function.middlestring(xx, "MsgID\": \"", "\"");
-            */
-            //自己添加
+            string xx = ""+CacheData.CoolQApi.SendGroupMsg(groupId,msg);//发送群消息总会有返回值
+            
             return "";
         }
 
@@ -1468,7 +1486,13 @@ namespace WindowsFormsApplication4
             
         }
 
-        //发图发字
+        /// 正在适配，好像这个方法没有被调用
+        /// 暂时忽略
+        /// <summary>
+        /// 发图发字
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void fatu(object sender, EventArgs e)
         {
             /*
@@ -1512,9 +1536,9 @@ namespace WindowsFormsApplication4
             
             if (textBox9.Text == "")
                 return;
-            string msgid = ""+CacheData.CoolQApi.SendGroupMsg(_group.GroupId,textBox9.Text);
-            if (msgid != "")
-                jzxx(_group, textBox9.Text, msgid);
+            string msgid = send(_group.GroupId,textBox9.Text);
+            //if (msgid != "") //代表发送成功
+            jzxx(_group, textBox9.Text, msgid);
             textBox9.Text = "";
             
         }
@@ -1583,7 +1607,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void timer1_Tick(object sender, EventArgs e)
         {
-            /*
+            
             //
             string q = "";
             DateTime dtNow = Convert.ToDateTime(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -1760,7 +1784,7 @@ namespace WindowsFormsApplication4
             {
                 string xzmx = "";
                 int groupNum = 0;
-                foreach (GROUP jp in _group.MemberList)
+                foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
                     string xzCon = jp.conter;
                     //重新算下注下注
@@ -1896,7 +1920,7 @@ namespace WindowsFormsApplication4
 
                 #endregion 开奖
             }
-            */
+            
         }
 
 
@@ -1998,7 +2022,7 @@ namespace WindowsFormsApplication4
         private string jieSuan()
         {
 
-            /*
+            
             string zjxx = "";
             string strzd = "";
             //
@@ -2015,7 +2039,7 @@ namespace WindowsFormsApplication4
 
             int groupNum = 0;
             int groupNumB = 0;
-            foreach (GROUP jp in _group.MemberList)
+            foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
 
 
@@ -2228,7 +2252,7 @@ namespace WindowsFormsApplication4
                     }
                     catch (Exception ex)
                     {
-                        log(jp.NickName + "赔率未设置，结算失败");
+                        log(jp.GroupMemberBaseInfo.NickName + "赔率未设置，结算失败");
                     }
                     jp.benqiyingkui = (int)zjjf - jp.benqixiazhu;
                     jp.zongyingkui += jp.benqiyingkui;
@@ -2257,14 +2281,14 @@ namespace WindowsFormsApplication4
 
                         //增加成员数据
                         SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                            "'" + jp.NickName + "','"
-                            + jp.seq + "','"
+                            "'" + jp.GroupMemberBaseInfo.NickName + "','"
+                            + jp.Seq + "','"
                             + _kaiJiangData.qihao
                             + "','奖金','"
                             + ((int)zjjf).ToString()
                             + "','" + jp.zongjifen
                             + "',''",
-                            " liushui_" + _group.seq);
+                            " liushui_" + CacheData.Seq);
 
 
 
@@ -2273,17 +2297,17 @@ namespace WindowsFormsApplication4
 
                     //成功下注
                     SQL.INSERT("NickName,seq,期号,类型,实际下注,实际中奖,实际下注文本,备注",
-                            "'" + jp.NickName + "','"
-                            + jp.seq + "','"
+                            "'" + jp.GroupMemberBaseInfo.NickName + "','"
+                            + jp.Seq + "','"
                             + _kaiJiangData.qihao + "','','"
                             + zj_xiazhu.ToString() + "','"
                             + zj_zjjf
                             + "','',''",
-                            " liushuiAct_" + _group.seq);
+                            " liushuiAct_" + CacheData.Seq);
 
-                    KeyVal seq = new KeyVal("seq", jp.seq);
+                    KeyVal seq = new KeyVal("seq", jp.Seq);
                     xiaZhuData.Add(seq);
-                    KeyVal NN = new KeyVal("NickName", jp.NickName);
+                    KeyVal NN = new KeyVal("NickName", jp.GroupMemberBaseInfo.NickName);
                     xiaZhuData.Add(NN);
                     KeyVal qh = new KeyVal("期号", _kaiJiangData.qihao);
                     xiaZhuData.Add(qh);
@@ -2297,7 +2321,7 @@ namespace WindowsFormsApplication4
                     xiaZhuData.Add(jsjf);
 
                     //
-                    SQL.INSERT(xiaZhuData, " NameInt_" + _group.seq);
+                    SQL.INSERT(xiaZhuData, " NameInt_" + CacheData.Seq);
                     #endregion
 
 
@@ -2305,7 +2329,7 @@ namespace WindowsFormsApplication4
                     #region 统计积分
 
                     //更新用户总积分
-                    string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + jp.seq + "'",
+                    string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + jp.Seq + "'",
                         "'现有积分'='" + jp.zongjifen.ToString() + "','总盈亏'='" + jp.zongyingkui.ToString() + "','总下注'='"
                         + jp.zongxiazhu.ToString() + "'");
 
@@ -2315,16 +2339,16 @@ namespace WindowsFormsApplication4
                     //显示更新后积分，获取统计
                     _group.zongyingkui += jp.zongyingkui;
                     _group.benqixiazhu += jp.benqixiazhu;
-                    lvChengYuanJiFen.Items[jp.id].SubItems[5].Text = jp.zongjifen.ToString();
-                    lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();
+                    lvChengYuanJiFen.Items[jp.Id].SubItems[5].Text = jp.zongjifen.ToString();
+                    lvChengYuanJiFen.Items[jp.Id].SubItems[6].Text = jp.zongyingkui.ToString();
                     DateTime time1 = DateTime.Now.Date;
                     DateTime time2 = time1.AddDays(1);
                     try
                     {
-                        DataTable deset = SQLiteHelper.ExecuteDataTable("select sum(盈亏)  from NameInt_" + _group.seq + " where seq='" + jp.seq
+                        DataTable deset = SQLiteHelper.ExecuteDataTable("select sum(盈亏)  from NameInt_" + CacheData.Seq + " where seq='" + jp.Seq
                             + "' and Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00")
                             + "' group by seq", null);
-                        lvChengYuanJiFen.Items[jp.id].SubItems[7].Text = deset.Rows[0][0].ToString();
+                        lvChengYuanJiFen.Items[jp.Id].SubItems[7].Text = deset.Rows[0][0].ToString();
                     }
                     catch (Exception ex)
                     {
@@ -2333,10 +2357,10 @@ namespace WindowsFormsApplication4
                     #endregion
 
 
-                    log(jp.NickName + "清空下注数据，更新总积分");
+                    log(jp.GroupMemberBaseInfo.NickName + "清空下注数据，更新总积分");
 
-                    lvChengYuanJiFen.Items[jp.id].SubItems[8].Text = "";//本期下注
-                    lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
+                    lvChengYuanJiFen.Items[jp.Id].SubItems[8].Text = "";//本期下注
+                    lvChengYuanJiFen.Items[jp.Id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
 
                     jp.benqixiazhu = 0;
                     jp.benqiyingkui = 0;
@@ -2349,7 +2373,7 @@ namespace WindowsFormsApplication4
                 }
                 catch (Exception ex)
                 {
-                    log(jp.NickName + "玩家结算失败");
+                    log(jp.GroupMemberBaseInfo.NickName + "玩家结算失败");
                 }
             }
 
@@ -2369,12 +2393,12 @@ namespace WindowsFormsApplication4
             zcs.Add(zcs8);
 
 
-            SQL.INSERT(zcs, " kaijiang_" + _group.seq);
+            SQL.INSERT(zcs, " kaijiang_" + CacheData.Seq);
 
             //
             DateTime tim1 = DateTime.Now.Date;
             DateTime tim2 = tim1.AddDays(1);
-            DataTable dest = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + _group.seq + " where Time BETWEEN '" + tim1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + tim2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
+            DataTable dest = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + CacheData.Seq + " where Time BETWEEN '" + tim1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + tim2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
 
 
             comboBox5.Items.Clear();
@@ -2389,9 +2413,7 @@ namespace WindowsFormsApplication4
 
 
             return zjxx + "||||||" + strzd;
-            */
-            //自己添加
-            return null;
+            
         }
 
         /// <summary>
@@ -2407,6 +2429,7 @@ namespace WindowsFormsApplication4
             }
         }
 
+        /// 正在处理
         /// <summary>
         /// 报盘
         /// </summary>
@@ -2414,12 +2437,12 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void checkBox2_CheckedChanged(object sender, EventArgs e)
         {
-            /*
+            
             if (checkBox2.Checked)
             {
                 new 报盘(_group).Show();
             }
-            */
+            
         }
 
         /// <summary>
@@ -2432,6 +2455,7 @@ namespace WindowsFormsApplication4
             new 报表(CacheData.Seq, textBox23.Text).Show();
         }
 
+        /// 正在适配
         /// <summary>
         /// 一键修改备注和入局
         /// </summary>
@@ -2439,7 +2463,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button8_Click(object sender, EventArgs e)
         {
-            /*
+            
             string rj = "否";
             string Val = "";
             if (checkBox12.Checked)
@@ -2469,9 +2493,9 @@ namespace WindowsFormsApplication4
                     where = where + "seq like '" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text + "' or ";
                 }
 
-                foreach (GROUP jp in _group.MemberList)
+                foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
-                    if (jp.seq == lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text)
+                    if (jp.Seq == lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text)
                     {
                         jp.bendibeizhu = textBox27.Text;
                         break;
@@ -2482,12 +2506,13 @@ namespace WindowsFormsApplication4
             if (where != "")
             {
                 where = where.Remove(where.Length - 4, 4);
-                string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where " + where, Val);
+                string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where " + where, Val);
                 SQLiteHelper.ExecuteNonQuery(delStr);
             }
-            */
+            
         }
 
+        ///正在适配
         /// <summary>
         /// 更新记录  上分下分下注
         /// </summary>
@@ -2495,7 +2520,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button12_Click(object sender, EventArgs e)
         {
-            /*
+            
             DialogResult d = MessageBox.Show("更新纪录？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2514,7 +2539,7 @@ namespace WindowsFormsApplication4
                 {
                     if (leixing == "上分")
                     {
-                        _group.MemberList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen += int.Parse(jfen);
+                        CacheData.GroupMemberInfoList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen += int.Parse(jfen);
                         lock (obj)
                         {
                             _zongJiFen += int.Parse(jfen);
@@ -2522,23 +2547,24 @@ namespace WindowsFormsApplication4
                     }
                     if (leixing == "下分")
                     {
-                        _group.MemberList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen -= int.Parse(jfen);
+                        CacheData.GroupMemberInfoList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen -= int.Parse(jfen);
                         lock (obj)
                         {
                             _zongJiFen -= int.Parse(jfen);
                         }
                     }
-                    lvChengYuanJiFen.CheckedItems[i].SubItems[5].Text = _group.MemberList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen.ToString();
-                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + lvChengYuanJiFen.CheckedItems[i].SubItems[0].Text + "','" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text + "','" + qihao + "','" + leixing + "','" + _group.MemberList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen.ToString() + "','" + jfen + "','" + beizhu + "'", " liushui_" + _group.seq);
+                    lvChengYuanJiFen.CheckedItems[i].SubItems[5].Text = CacheData.GroupMemberInfoList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen.ToString();
+                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + lvChengYuanJiFen.CheckedItems[i].SubItems[0].Text + "','" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text + "','" + qihao + "','" + leixing + "','" + CacheData.GroupMemberInfoList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)].zongjifen.ToString() + "','" + jfen + "','" + beizhu + "'", " liushui_" + CacheData.Seq);
 
-                    string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text + "'", "'现有积分'='" + lvChengYuanJiFen.CheckedItems[i].SubItems[5].Text + "'");
+                    string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text + "'", "'现有积分'='" + lvChengYuanJiFen.CheckedItems[i].SubItems[5].Text + "'");
                     SQLiteHelper.ExecuteNonQuery(delStr);
                     // listView2.CheckedItems[i].Remove();
                 }
             }
-            */
+            
         }
 
+        ///正在适配
         /// <summary>
         /// 同意上分
         /// </summary>
@@ -2546,7 +2572,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button16_Click(object sender, EventArgs e)
         {
-            /*
+
             DialogResult d = MessageBox.Show("同意上分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2558,14 +2584,14 @@ namespace WindowsFormsApplication4
                 {
                     int id = int.Parse(listView3.CheckedItems[i].SubItems[2].Text);
                     int jf = int.Parse(listView3.CheckedItems[i].SubItems[4].Text);
-                    _group.MemberList[id].zongjifen += jf;
-                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + listView3.CheckedItems[i].SubItems[0].Text + "','" + _group.MemberList[id].seq + "','" + _kaiJiangData.qihao + "','上分','" + jf.ToString() + "','" + _group.MemberList[id].zongjifen + "',''", " liushui_" + _group.seq);
-                    cont += "@" + _group.MemberList[id].NickName;
-                    cont += " 上分成功\n余量:" + _group.MemberList[id].zongjifen + "\n";
+                    CacheData.GroupMemberInfoList[id].zongjifen += jf;
+                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + listView3.CheckedItems[i].SubItems[0].Text + "','" + CacheData.GroupMemberInfoList[id].Seq + "','" + _kaiJiangData.qihao + "','上分','" + jf.ToString() + "','" + CacheData.GroupMemberInfoList[id].zongjifen + "',''", " liushui_" + CacheData.Seq);
+                    cont += CoolQCode.At(CacheData.GroupMemberInfoList[id].GroupMemberBaseInfo.Number);
+                    cont += " 上分成功\n余量:" + CacheData.GroupMemberInfoList[id].zongjifen + "\n";
 
-                    string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + _group.MemberList[id].seq + "'", "'现有积分'='" + _group.MemberList[id].zongjifen + "'");
+                    string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + CacheData.GroupMemberInfoList[id].Seq + "'", "'现有积分'='" + CacheData.GroupMemberInfoList[id].zongjifen + "'");
                     SQLiteHelper.ExecuteNonQuery(delStr);
-                    lvChengYuanJiFen.Items[id].SubItems[5].Text = _group.MemberList[id].zongjifen.ToString();
+                    lvChengYuanJiFen.Items[id].SubItems[5].Text = CacheData.GroupMemberInfoList[id].zongjifen.ToString();
                     listView3.CheckedItems[i].Remove();
                     m = listView3.CheckedItems.Count;
                     i = -1;
@@ -2577,9 +2603,10 @@ namespace WindowsFormsApplication4
             }
             if (cont != "")
             {
-                jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
+                //jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
+                jzxx(_group, cont, send(_group.GroupId, cont));
             }
-            */
+            
         }
 
         /// <summary>
@@ -2589,7 +2616,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button17_Click(object sender, EventArgs e)
         {
-            /*
+            
             DialogResult d = MessageBox.Show("拒绝上分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2599,7 +2626,7 @@ namespace WindowsFormsApplication4
             {
                 if (listView3.CheckedItems[i].Checked)
                 {
-                    cont += "@" + listView3.CheckedItems[i].SubItems[0].Text + " 上分失败\n余量:\n";
+                    cont += CoolQCode.At(Convert.ToInt64(listView3.CheckedItems[i].SubItems[12].Text)) + " 上分失败\n余量:\n";
                     listView3.CheckedItems[i].Remove();
                     m = listView3.CheckedItems.Count;
                     i = -1;
@@ -2607,11 +2634,12 @@ namespace WindowsFormsApplication4
             }
             if (cont != "")
             {
-                jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
+                jzxx(_group, cont, send(_group.GroupId, cont));
             }
-            */
+            
         }
 
+        /// 正在适配
         /// <summary>
         /// 同意下分
         /// </summary>
@@ -2619,7 +2647,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button19_Click(object sender, EventArgs e)
         {
-            /*
+            
             DialogResult d = MessageBox.Show("同意下分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2631,13 +2659,13 @@ namespace WindowsFormsApplication4
                 {
                     int id = int.Parse(listView4.CheckedItems[i].SubItems[2].Text);
                     int jf = int.Parse(listView4.CheckedItems[i].SubItems[4].Text);
-                    _group.MemberList[id].zongjifen -= jf;
-                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + listView4.CheckedItems[i].SubItems[0].Text + "','" + _group.MemberList[id].seq + "','" + _kaiJiangData.qihao + "','下分','" + jf.ToString() + "','" + _group.MemberList[id].zongjifen + "',''", " liushui_" + _group.seq);
-                    cont += "@" + _group.MemberList[id].NickName + " 下分成功\n余量:" + _group.MemberList[id].zongjifen;
+                    CacheData.GroupMemberInfoList[id].zongjifen -= jf;
+                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + listView4.CheckedItems[i].SubItems[0].Text + "','" + CacheData.GroupMemberInfoList[id].Seq + "','" + _kaiJiangData.qihao + "','下分','" + jf.ToString() + "','" + CacheData.GroupMemberInfoList[id].zongjifen + "',''", " liushui_" + CacheData.Seq);
+                    cont += CoolQCode.At(CacheData.GroupMemberInfoList[id].GroupMemberBaseInfo.Number) + " 下分成功\n余量:" + CacheData.GroupMemberInfoList[id].zongjifen;
 
-                    string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + _group.MemberList[id].seq + "'", "'现有积分'='" + _group.MemberList[id].zongjifen + "'");
+                    string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + CacheData.GroupMemberInfoList[id].Seq + "'", "'现有积分'='" + CacheData.GroupMemberInfoList[id].zongjifen + "'");
                     SQLiteHelper.ExecuteNonQuery(delStr);
-                    lvChengYuanJiFen.Items[id].SubItems[5].Text = _group.MemberList[id].zongjifen.ToString();
+                    lvChengYuanJiFen.Items[id].SubItems[5].Text = CacheData.GroupMemberInfoList[id].zongjifen.ToString();
                     listView4.CheckedItems[i].Remove();
                     m = listView4.CheckedItems.Count;
                     i = -1;
@@ -2649,9 +2677,9 @@ namespace WindowsFormsApplication4
             }
             if (cont != "")
             {
-                jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
+                jzxx(_group, cont, send(_group.GroupId, cont));
             }
-            */
+            
         }
 
         private void lvChengYuanJiFen_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -2659,6 +2687,7 @@ namespace WindowsFormsApplication4
             new 流水明细(getname(lvChengYuanJiFen.SelectedItems[0].SubItems[2].Text), CacheData.Seq).Show();
         }
 
+        /// 正在适配
         /// <summary>
         /// 拒绝下分
         /// </summary>
@@ -2666,7 +2695,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button18_Click(object sender, EventArgs e)
         {
-            /*
+            
             DialogResult d = MessageBox.Show("拒绝下分？", "提示", MessageBoxButtons.OKCancel);
             if (d != DialogResult.OK)
                 return;
@@ -2676,7 +2705,7 @@ namespace WindowsFormsApplication4
             {
                 if (listView4.CheckedItems[i].Checked)
                 {
-                    cont += "@" + listView4.CheckedItems[i].SubItems[0].Text + " 上分失败\n余量:";
+                    cont += CoolQCode.At(Convert.ToInt64(listView3.CheckedItems[i].SubItems[12].Text)) + " 上分失败\n余量:";
                     listView4.CheckedItems[i].Remove();
                     m = listView4.CheckedItems.Count;
                     i = -1;
@@ -2684,9 +2713,9 @@ namespace WindowsFormsApplication4
             }
             if (cont != "")
             {
-                jzxx(getname(_qrWebWeChat.UserName), cont, send(cont, _group.UserName));
+                jzxx(_group, cont, send( _group.GroupId, cont));
             }
-            */
+            
         }
 
         bool isShowServerExpire = false;
@@ -2786,13 +2815,18 @@ namespace WindowsFormsApplication4
         }
 
         public static Encoding _encoding = System.Text.Encoding.GetEncoding("GB2312");
+        /// 正在适配
+        /// <summary>
+        /// 实时账单
+        /// </summary>
+        /// <returns></returns>
         private string sszhangdan()
         {
             
             string zd = "";
-            /*
+            
             int groupNum = 0;
-            foreach (GROUP jp in _group.MemberList)
+            foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
                 groupNum++;
                 //string str3 = "";
@@ -2818,7 +2852,7 @@ namespace WindowsFormsApplication4
                     zd += "\n";
                 }
             }
-            */
+            
             return zd;
         }
 
@@ -2872,8 +2906,8 @@ namespace WindowsFormsApplication4
             }
             else
             {
-                int msgid = CacheData.CoolQApi.SendGroupMsg(_group.GroupId, xzmx);
-                jzxx(_group,CacheData.LoginQQ, xzmx, ""+msgid);
+                string msgid = send(_group.GroupId, xzmx);
+                jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
             
         }
@@ -2975,6 +3009,7 @@ namespace WindowsFormsApplication4
             }
         }
 
+        /// 正在适配
         /// <summary>
         /// 下注修改
         /// </summary>
@@ -2982,7 +3017,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button11_Click(object sender, EventArgs e)
         {
-            /*
+            
             if (textBox8.Text == "")
                 return;
             int m = lvChengYuanJiFen.CheckedItems.Count;
@@ -2990,10 +3025,10 @@ namespace WindowsFormsApplication4
             {
                 if (lvChengYuanJiFen.CheckedItems[i].Checked)
                 {
-                    xiazhu(textBox8.Text.Split(' '), _group.MemberList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)]);
+                    xiazhu(textBox8.Text.Split(' '),_group,CacheData.GroupMemberInfoList[int.Parse(lvChengYuanJiFen.CheckedItems[i].SubItems[10].Text)]);
                 }
             }
-            */
+            
         }
 
         private void button10_Click(object sender, EventArgs e)
@@ -3091,10 +3126,14 @@ namespace WindowsFormsApplication4
                 }
             }
         }
-
+        /// <summary>
+        /// 正在适配
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            /*
+            
             if (MessageBox.Show("是否关闭窗口", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
             {
                 e.Cancel = true;
@@ -3106,7 +3145,7 @@ namespace WindowsFormsApplication4
                 //程序完全退出
                 System.Environment.Exit(0);
             }
-            */
+            
         }
 
         private void log(string str)
@@ -3242,13 +3281,18 @@ namespace WindowsFormsApplication4
                 button30.Enabled = true;
             }
         }
-
+        /// 正在适配
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button30_Click(object sender, EventArgs e)
         {
-            /*
+            
             string xzmx = "";
             int groupNum = 0;
-            foreach (GROUP jp in _group.MemberList)
+            foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
                 if (jp.conter != "")
                 {
@@ -3263,7 +3307,7 @@ namespace WindowsFormsApplication4
             }
             xzmx = textBox17.Text.Replace("{下注明细}", xzmx).Replace("{期号}", _kaiJiangData.qihao);
             fasong(xzmx, false);
-            */
+            
         }
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -3286,9 +3330,14 @@ namespace WindowsFormsApplication4
                 frmFeiPan.Show();
             }
         }
+        /// 正在适配
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public bool FeiPan()
         {
-            /*
+            
             _feiDanJieGuoData = new feiPanJieGuo();
             _feiDanJieGuoData.isSuccess = true;
 
@@ -3307,7 +3356,7 @@ namespace WindowsFormsApplication4
 
                 xztj mXZTJ = new xztj();
 
-                foreach (GROUP jp in _group.MemberList)
+                foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
                     if (jp.conter == "")
                     {
@@ -3354,11 +3403,12 @@ namespace WindowsFormsApplication4
                     log("飞盘失败" + ex.Message);
                 }
             }
-            */
+            
             return true;
         }
 
 
+        /// 正在适配
         /// <summary>
         /// 飞盘失败返还积分
         /// </summary>
@@ -3368,7 +3418,7 @@ namespace WindowsFormsApplication4
 
             string zjxx = "";
             string strzd = "";
-            /*
+            
            feiPanJieGuo fpJieGuo = _feiDanJieGuoData;
 
 
@@ -3382,7 +3432,7 @@ namespace WindowsFormsApplication4
 
 
 
-           foreach (GROUP jp in _group.MemberList)
+           foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
            {
 
 
@@ -3553,7 +3603,7 @@ namespace WindowsFormsApplication4
                }
                catch (Exception ex)
                {
-                   log(jp.NickName + "赔率未设置，结算失败");
+                   log(jp.GroupMemberBaseInfo.NickName + "赔率未设置，结算失败");
                }
                if (xiaZhuJifen > 0)
                {
@@ -3572,14 +3622,14 @@ namespace WindowsFormsApplication4
 
                        //增加成员数据
                        SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                           "'" + jp.NickName + "','" + jp.seq + "','" + _shangQiKaiJiangData.qihao + "','飞盘失败返还','" + benqiyingkui.ToString() + "','" + jp.zongjifen + "',''",
-                           " liushui_" + _group.seq);
+                           "'" + jp.GroupMemberBaseInfo.NickName + "','" + jp.Seq + "','" + _shangQiKaiJiangData.qihao + "','飞盘失败返还','" + benqiyingkui.ToString() + "','" + jp.zongjifen + "',''",
+                           " liushui_" + CacheData.Seq);
                        label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
                    }
 
-                   KeyVal seq = new KeyVal("seq", jp.seq);
+                   KeyVal seq = new KeyVal("seq", jp.Seq);
                    xiaZhuData.Add(seq);
-                   KeyVal NN = new KeyVal("NickName", jp.NickName);
+                   KeyVal NN = new KeyVal("NickName", jp.GroupMemberBaseInfo.NickName);
                    xiaZhuData.Add(NN);
                    KeyVal qh = new KeyVal("期号", _shangQiKaiJiangData.qihao);
                    xiaZhuData.Add(qh);
@@ -3593,7 +3643,7 @@ namespace WindowsFormsApplication4
                    xiaZhuData.Add(jsjf);
 
                    //
-                   SQL.INSERT(xiaZhuData, " NameInt_" + _group.seq);
+                   SQL.INSERT(xiaZhuData, " NameInt_" + CacheData.Seq);
 
 
 
@@ -3601,7 +3651,7 @@ namespace WindowsFormsApplication4
                    #region 统计积分
 
                    //更新用户总积分
-                   string delStr = string.Format(@"UPDATE Friends_" + _group.seq + " SET {0} where seq='" + jp.seq + "'",
+                   string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + jp.Seq + "'",
                        "'现有积分'='" + jp.zongjifen.ToString() + "','总盈亏'='" + jp.zongyingkui.ToString() + "','总下注'='"
                        + jp.zongxiazhu.ToString() + "'");
 
@@ -3611,16 +3661,16 @@ namespace WindowsFormsApplication4
                    //显示更新后积分，获取统计
                    _group.zongyingkui += jp.zongyingkui;
                    _group.benqixiazhu += jp.benqixiazhu;
-                   lvChengYuanJiFen.Items[jp.id].SubItems[5].Text = jp.zongjifen.ToString();
-                   lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();
+                   lvChengYuanJiFen.Items[jp.Id].SubItems[5].Text = jp.zongjifen.ToString();
+                   lvChengYuanJiFen.Items[jp.Id].SubItems[6].Text = jp.zongyingkui.ToString();
                    DateTime time1 = DateTime.Now.Date;
                    DateTime time2 = time1.AddDays(1);
                    try
                    {
-                       DataTable deset = SQLiteHelper.ExecuteDataTable("select sum(盈亏)  from NameInt_" + _group.seq + " where seq='" + jp.seq
+                       DataTable deset = SQLiteHelper.ExecuteDataTable("select sum(盈亏)  from NameInt_" + CacheData.Seq + " where seq='" + jp.Seq
                            + "' and Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00")
                            + "' group by seq", null);
-                       lvChengYuanJiFen.Items[jp.id].SubItems[7].Text = deset.Rows[0][0].ToString();
+                       lvChengYuanJiFen.Items[jp.Id].SubItems[7].Text = deset.Rows[0][0].ToString();
                    }
                    catch (Exception ex)
                    {
@@ -3629,18 +3679,18 @@ namespace WindowsFormsApplication4
                    #endregion
 
 
-                   lvChengYuanJiFen.Items[jp.id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
+                   lvChengYuanJiFen.Items[jp.Id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
                }
                try
                { }
                catch (Exception ex)
                {
-                   log(jp.NickName + "玩家返还结算失败");
+                   log(jp.GroupMemberBaseInfo.NickName + "玩家返还结算失败");
                }
 
                #endregion
            }
-           */
+          
 
             return zjxx + "||||||" + strzd;
         }
@@ -3664,6 +3714,7 @@ namespace WindowsFormsApplication4
 
         }
 
+        /// 正在适配
         /// <summary>
         /// 刷新群列表
         /// </summary>

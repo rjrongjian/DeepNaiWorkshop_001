@@ -1,5 +1,6 @@
 ﻿using AI.Bll;
 using DeepWorkshop.QQRot.FirstCity;
+using DeepWorkshop.QQRot.FirstCity.MyModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,18 +15,19 @@ namespace 新一城娱乐系统
 {
     public partial class 报盘 : Form
     {
-        GROUP _mainGroup = null;
+        GroupInfo _mainGroup = null;
         string zuiJinYiqi = "";
+        private String Seq;//当群信息为空的时候，启动此Seq
 
-        public 报盘(GROUP gr)
+        public 报盘(GroupInfo gr)
         {
             InitializeComponent();
 
 
             if (gr == null)
             {
-                _mainGroup = new GROUP();
-                _mainGroup.seq = "ABC";
+                _mainGroup = new GroupInfo();
+                Seq = "ABC";
             }
             else
             {
@@ -60,7 +62,7 @@ namespace 新一城娱乐系统
             //DataTable dt = SQL.SELECTdata("期号", "1=1 ORDER BY 期号 DESC LIMIT 3000", "kaijiang_" + _mainGroup.seq);//总下注积分>0
 
             DataTable dt = SQL.SELECTdata("distinct 期号", "1=1 ORDER BY 期号 DESC LIMIT 3000",
-                "(select 期号 from liushui_" + _mainGroup.seq + " union SELECT 期号 FROM kaijiang_" + _mainGroup.seq + " )");
+                "(select 期号 from liushui_" + (String.IsNullOrWhiteSpace(Seq)?CacheData.Seq:Seq) + " union SELECT 期号 FROM kaijiang_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq) + " )");
 
             //
             for (int i = 0; i < dt.Rows.Count; i++)
@@ -86,7 +88,7 @@ namespace 新一城娱乐系统
         string chaXunXiaZhu(string qihao, bool isCCC = false)
         {
 
-            DataTable dtXiaZhu = SQL.SELECTdata(" where 下注文本!='飞盘失败，返还积分' and 下注文本!='回水积分' and 期号='" + qihao + "'", "NameInt_" + _mainGroup.seq);
+            DataTable dtXiaZhu = SQL.SELECTdata(" where 下注文本!='飞盘失败，返还积分' and 下注文本!='回水积分' and 期号='" + qihao + "'", "NameInt_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq));
             StringBuilder jieGuo = new StringBuilder();
 
             jieGuo.AppendLine(qihao + "期下注统计");

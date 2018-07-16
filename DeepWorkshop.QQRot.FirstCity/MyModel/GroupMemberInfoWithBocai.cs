@@ -14,9 +14,15 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
     public class GroupMemberInfoWithBocai
     {
         public GroupMemberInfo GroupMemberBaseInfo;
+        public string RemarkName = "";
 
         public bool sfrj = false;//是否入局
+        public int ArrIndex;//获取的群员列表在数组中的索引值
+        public String Seq;//类似于每个用户在不同表中对应的索引
+        public int Id;//此会员在本地数据库的Id 在dgv2中有更新
 
+
+        //以下是个人数据
 
         public string NickNameShort = "";
         //时时彩积分
@@ -38,9 +44,11 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
 
         public string bendibeizhu = "";//本地备注
 
-        public GroupMemberInfoWithBocai(GroupMemberInfo groupMemberBaseInfo)
+        public GroupMemberInfoWithBocai(GroupMemberInfo groupMemberBaseInfo,int arrIndex)
         {
             GroupMemberBaseInfo = groupMemberBaseInfo;
+            ArrIndex = arrIndex;
+            this.Seq = groupMemberBaseInfo.NickName + groupMemberBaseInfo.Number;
         }
     }
 }

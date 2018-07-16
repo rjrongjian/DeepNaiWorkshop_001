@@ -96,7 +96,7 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
             {
                 foreach(GroupMemberInfo memberInfo in iterator)
                 {
-                    GroupMemberInfoWithBocai groupMemberInfoWithBocai = new GroupMemberInfoWithBocai(memberInfo);
+                    GroupMemberInfoWithBocai groupMemberInfoWithBocai = new GroupMemberInfoWithBocai(memberInfo, list.Count);
                     list.Add(groupMemberInfoWithBocai);
                     keyVal.Add(memberInfo.Number, groupMemberInfoWithBocai);
                 }
