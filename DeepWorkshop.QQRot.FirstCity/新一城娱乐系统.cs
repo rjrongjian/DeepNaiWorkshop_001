@@ -1319,26 +1319,26 @@ namespace WindowsFormsApplication4
                     for (int u = 0; u < 10; u++)
                     {
                         for (int x = 0; x < 5; x++)
-                            groupMember.xiazhutongji.QD[x, u] += lsxz.QD[x, u];
+                            _group.xiazhutongji.QD[x, u] += lsxz.QD[x, u];
                     }
                     for (int u = 0; u < 4; u++)
                     {
-                        groupMember.xiazhutongji.DXDS[0, u] += lsxz.DXDS[0, u];
-                        groupMember.xiazhutongji.DXDS[1, u] += lsxz.DXDS[1, u];
-                        groupMember.xiazhutongji.DXDS[2, u] += lsxz.DXDS[2, u];
-                        groupMember.xiazhutongji.DXDS[3, u] += lsxz.DXDS[3, u];
-                        groupMember.xiazhutongji.DXDS[4, u] += lsxz.DXDS[4, u];
+                        _group.xiazhutongji.DXDS[0, u] += lsxz.DXDS[0, u];
+                        _group.xiazhutongji.DXDS[1, u] += lsxz.DXDS[1, u];
+                        _group.xiazhutongji.DXDS[2, u] += lsxz.DXDS[2, u];
+                        _group.xiazhutongji.DXDS[3, u] += lsxz.DXDS[3, u];
+                        _group.xiazhutongji.DXDS[4, u] += lsxz.DXDS[4, u];
 
-                        groupMember.xiazhutongji.ZHDXDS[u] += lsxz.ZHDXDS[u];
-                        groupMember.xiazhutongji.ZHZHDXDS[u] += lsxz.ZHZHDXDS[u];
+                        _group.xiazhutongji.ZHDXDS[u] += lsxz.ZHDXDS[u];
+                        _group.xiazhutongji.ZHZHDXDS[u] += lsxz.ZHZHDXDS[u];
                     }
-                    groupMember.xiazhutongji.LHH[0] += lsxz.LHH[0];
-                    groupMember.xiazhutongji.LHH[1] += lsxz.LHH[1];
-                    groupMember.xiazhutongji.LHH[2] += lsxz.LHH[2];
+                    _group.xiazhutongji.LHH[0] += lsxz.LHH[0];
+                    _group.xiazhutongji.LHH[1] += lsxz.LHH[1];
+                    _group.xiazhutongji.LHH[2] += lsxz.LHH[2];
 
-                    groupMember.zongjifen = groupMember.lszjf;
-                    groupMember.conter += (con + ";");
-                    groupMember.benqixiazhu += groupMember.lsxzjf;
+                    _group.zongjifen = groupMember.lszjf;
+                    _group.conter += (con + ";");
+                    _group.benqixiazhu += groupMember.lsxzjf;
                     //
                     return 0;
                 }

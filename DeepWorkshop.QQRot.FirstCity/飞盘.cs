@@ -1,6 +1,7 @@
 ﻿using AI.Bll;
 using Bll;
 using Dal;
+using DeepWorkshop.QQRot.FirstCity.MyModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -18,8 +19,9 @@ namespace 新一城娱乐系统
 
         private Thread connectThread;
         public Form1 frmMain = null;
+        private String Seq;//当群信息为空的时候，启动此Seq
 
-        private GROUP _mainGroup;
+        private GroupInfo _mainGroup;
 
         private const string serShunFeng = "http://mem1.paeghe214.dqbpkj.com:88/";
 
@@ -44,8 +46,8 @@ namespace 新一城娱乐系统
             this.frmMain = formPar;
             if (formPar == null)
             {
-                _mainGroup = new GROUP();
-                _mainGroup.seq = "ABC";
+                _mainGroup = new GroupInfo();
+                Seq = "ABC";
             }
             else
             {
@@ -125,7 +127,7 @@ namespace 新一城娱乐系统
         {
             //加载服务器
             lvSerState.Items.Clear();
-            DataTable dtServer = SQLiteHelper.ExecuteDataTable("select * from fuwuqi_" + _mainGroup.seq, null);
+            DataTable dtServer = SQLiteHelper.ExecuteDataTable("select * from fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq), null);
             if (dtServer.Rows.Count > 0)
             {
                 foreach (DataRow row in dtServer.Rows)
@@ -299,7 +301,7 @@ namespace 新一城娱乐系统
                 if (fpjgData.isSuccess == false)
                 {
                     //加载服务器
-                    DataTable dtServer = SQLiteHelper.ExecuteDataTable("select * from fuwuqi_" + _mainGroup.seq, null);
+                    DataTable dtServer = SQLiteHelper.ExecuteDataTable("select * from fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq), null);
                     if (dtServer.Rows.Count > 0)
                     {
                         foreach (DataRow row in dtServer.Rows)
@@ -551,7 +553,7 @@ namespace 新一城娱乐系统
             KeyVal jg = new KeyVal("提交结果", fpJieGuo.isSuccess ? "提交成功" : fpJieGuo.errorMessage);
             xiaZhuData.Add(jg);
             //
-            SQL.INSERT(xiaZhuData, " FeiPan_" + _mainGroup.seq);
+            SQL.INSERT(xiaZhuData, " FeiPan_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq));
 
             #endregion 增加数据
         }
@@ -579,7 +581,7 @@ namespace 新一城娱乐系统
                             string sId = lvi.SubItems[0].Text;
 
                             //删除
-                            string strSql = string.Format(@"DELETE FROM fuwuqi_" + _mainGroup.seq + " where ID='" + sId + "'");
+                            string strSql = string.Format(@"DELETE FROM fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq) + " where ID='" + sId + "'");
                             SQLiteHelper.ExecuteNonQuery(strSql);
 
                             //
@@ -626,7 +628,7 @@ namespace 新一城娱乐系统
 
 
             //加载服务器
-            DataTable dtServer = SQLiteHelper.ExecuteDataTable("select * from fuwuqi_" + _mainGroup.seq, null);
+            DataTable dtServer = SQLiteHelper.ExecuteDataTable("select * from fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq), null);
             if (dtServer.Rows.Count > 0)
             {
                 foreach (DataRow row in dtServer.Rows)
@@ -777,18 +779,18 @@ namespace 新一城娱乐系统
                     xiaZhuData.Add(xzwb);
 
                     //
-                    string tabelint = SQL.tabelint(" fuwuqi_" + _mainGroup.seq + " where 类型='" + leixin + "'");
+                    string tabelint = SQL.tabelint(" fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq) + " where 类型='" + leixin + "'");
                     int count = int.Parse(tabelint);
                     if (count > 0 && 1 == 2)
                     {
                         //更新用户总积分
-                        string strSql = string.Format(@"UPDATE fuwuqi_" + _mainGroup.seq + " SET {0} where 类型='" + leixin + "'",
+                        string strSql = string.Format(@"UPDATE fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq) + " SET {0} where 类型='" + leixin + "'",
                             "'服务器地址'='" + serUrl + "','用户名'='" + txtUserName.Text + "','密码'='" + txtUserPass.Text + "'");
                         SQLiteHelper.ExecuteNonQuery(strSql);
                     }
                     else
                     {
-                        SQL.INSERT(xiaZhuData, " fuwuqi_" + _mainGroup.seq);
+                        SQL.INSERT(xiaZhuData, " fuwuqi_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq));
                     }
 
                     //
@@ -840,7 +842,7 @@ namespace 新一城娱乐系统
 
             ListViewItem item;
 
-            DataTable dtFeipan = SQL.SELECTdata(" WHERE 1=1 ORDER BY id DESC", "FeiPan_" + _mainGroup.seq);
+            DataTable dtFeipan = SQL.SELECTdata(" WHERE 1=1 ORDER BY id DESC", "FeiPan_" + (String.IsNullOrWhiteSpace(Seq) ? CacheData.Seq : Seq));
             if (dtFeipan.Rows.Count > 0)
             {
                 DataRow dr = dtFeipan.Rows[0];

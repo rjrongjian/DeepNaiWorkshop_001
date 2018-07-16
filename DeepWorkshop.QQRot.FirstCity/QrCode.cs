@@ -202,13 +202,20 @@ namespace AI
         /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
-            //获取QQ群列表
-            List<GroupInfo> qqQunList = CoolQApiExtend.GetGroupList(CacheData.CoolQApi);
+            try {
+                label1.Text = "正在刷新群列表...";
+                //获取QQ群列表
+                List<GroupInfo> qqQunList = CoolQApiExtend.GetGroupList(CacheData.CoolQApi);
             
             
-            //将数据刷新到组件
-            RefreshQunListCom(qqQunList);
-            //webChat.FriendsList(false);
+                //将数据刷新到组件
+                RefreshQunListCom(qqQunList);
+                //webChat.FriendsList(false);
+            }catch(Exception ex)
+            {
+                MessageBox.Show("刷新群列表出现异常，原因："+ex.Message);
+                MyLogUtil.ErrToLog("刷新群列表出现异常，原因：" + ex);
+            }
         }
         /// <summary>
         /// 将群列表数据刷新到控件
