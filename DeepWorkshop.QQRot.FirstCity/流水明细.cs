@@ -1,5 +1,6 @@
 ﻿using AI.Bll;
 using Dal;
+using DeepWorkshop.QQRot.FirstCity.MyModel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,14 +14,14 @@ namespace 新一城娱乐系统
 {
     public partial class 流水明细 : Form
     {
-        GROUP linshi = null;
+        GroupMemberInfoWithBocai linshi = null;
         string zse = "";
-        public 流水明细(GROUP gr,string zseq)
+        public 流水明细(GroupMemberInfoWithBocai gr,string zseq)
         {
             zse = zseq;
             InitializeComponent();
             linshi = gr;
-            label1.Text = "昵称：" + gr.NickName;
+            label1.Text = "昵称：" + gr.GroupMemberBaseInfo.NickName;
             label2.Text = "备注：" + gr.RemarkName;
             label3.Text = "总下注：" + gr.zongxiazhu.ToString();
             label4.Text = "总盈亏：" + gr.zongyingkui.ToString();
@@ -58,7 +59,7 @@ namespace 新一城娱乐系统
         }
         void chaxun(string dt1, string dt2)
         {
-            string where = " where seq='" + linshi.seq + "' ";
+            string where = " where seq='" + linshi.Seq + "' ";
             if (comboBox1.Text != "全部")
                 where += "and 类型='" + comboBox1.Text + "'";
             where += " and Time BETWEEN '" + dt1 + "' AND '" + dt2 + "'";

@@ -234,13 +234,13 @@ namespace WindowsFormsApplication4
 
         ///正在修改
         /// <summary>
-        /// 群成员列表
+        /// 组装博彩信息到群成员列表，并展示(此方法成立的前提是已经获取了群成员列表)
         /// </summary>
         public void dgv2()
         {
-            /*
+            try { 
             lvChengYuanJiFen.Items.Clear();
-            if (_qrWebWeChat.grox == null) return;
+            if (_group == null) return;
             DataTable dt = SQL.SELECTdata("", " Friends_" + CacheData.Seq);
             //2017-05-04 08:45:40
             DateTime time1 = DateTime.Now.Date;
@@ -305,7 +305,7 @@ namespace WindowsFormsApplication4
                 item.SubItems.Add("");//本期下注
                 item.SubItems.Add(jp.Seq);
                 item.SubItems.Add(_chengYuanShuLiang.ToString());
-                item.SubItems.Add(""+jp.GroupMemberBaseInfo.Number);//多加一个字段，代表此会员的qq号
+                item.SubItems.Add(""+jp.GroupMemberBaseInfo.Number);//多加一个字段，代表此会员的qq号 index=11
                 item.SubItems.Remove(item.SubItems[0]);
                 //if (jp.UserName == _qrWebWeChat.UserName)
                 //   continue;
@@ -314,7 +314,13 @@ namespace WindowsFormsApplication4
                 _chengYuanShuLiang++;
             }
             label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
-            */
+            }catch(Exception ex)
+            {
+                MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
+                MyLogUtil.ErrToLog("加载群成员列表失败，原因："+ex);
+            }
+
+
         }
 
         /// 废弃
@@ -2385,9 +2391,12 @@ namespace WindowsFormsApplication4
                     if (textBox27.Text != "")
                         lvChengYuanJiFen.CheckedItems[i].SubItems[1].Text = textBox27.Text;
                     if (rj == "是")
-                        getname(lvChengYuanJiFen.CheckedItems[i].SubItems[2].Text).sfrj = true;
+                        /*getname(lvChengYuanJiFen.CheckedItems[i].SubItems[13].Text).sfrj = true;*/
+                        CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, Convert.ToInt64(lvChengYuanJiFen.CheckedItems[i].SubItems[11].Text)).sfrj = true;
                     if (rj == "否")
-                        getname(lvChengYuanJiFen.CheckedItems[i].SubItems[2].Text).sfrj = false;
+                        /*getname(lvChengYuanJiFen.CheckedItems[i].SubItems[2].Text).sfrj = false;*/
+                        //MyLogUtil.ToLogFotTest("测试数据："+ lvChengYuanJiFen.CheckedItems[i].SubItems[11].Text);
+                        CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, Convert.ToInt64(lvChengYuanJiFen.CheckedItems[i].SubItems[11].Text)).sfrj = false;
                     lvChengYuanJiFen.CheckedItems[i].SubItems[4].Text = rj;
                     where = where + "seq like '" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text + "' or ";
                 }
@@ -2583,7 +2592,8 @@ namespace WindowsFormsApplication4
 
         private void lvChengYuanJiFen_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            new 流水明细(getname(lvChengYuanJiFen.SelectedItems[0].SubItems[2].Text), CacheData.Seq).Show();
+            new 流水明细(CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, Convert.ToInt64(lvChengYuanJiFen.SelectedItems[0].SubItems[11].Text)), CacheData.Seq).Show();
+            
         }
 
         /// 正在适配
@@ -3621,32 +3631,10 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button5_Click_1(object sender, EventArgs e)
         {
-            /*
-            _qrWebWeChat.GETgroup();
 
-            foreach (GROUP groupItem in _qrWebWeChat.grox)
-            {
-                if (groupItem.NickName == _group.NickName)
-                {
-                    foreach (GROUP member in groupItem.MemberList)
-                    {
-                        bool isExist = false;
-                        foreach (GROUP currentMember in _group.MemberList)
-                        {
-                            if (member.seq == currentMember.seq)
-                            {
-                                isExist = true;
-                                break;
-                            }
-                        }
-                        if (isExist == false)
-                        {
-                            _group.MemberList.Add(member);
-                        }
+            GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[comboBox2.SelectedIndex];
+            CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi, currentSelectedGroup.GroupId);
 
-                    }
-                }
-            }
             if (_dgvThread == null || _dgvThread.ThreadState != ThreadState.Running)
             {
                 _chengYuanShuLiang = 0;
@@ -3655,7 +3643,7 @@ namespace WindowsFormsApplication4
             }
 
             //new Thread(dgv2).Start();
-            */
+            
         }
         /// <summary>
         /// 期号不足位数补0

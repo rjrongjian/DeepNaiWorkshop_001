@@ -168,7 +168,11 @@ namespace AI
             //Close();
             */
         }
-
+        /// <summary>
+        /// 进入主界面
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button3_Click(object sender, EventArgs e)
         {
             if (comboBox1.Text == "" || comboBox2.Text == "")
@@ -181,7 +185,14 @@ namespace AI
 
             //webChat.grox[comboBox2.SelectedIndex].seq = comboBox1.Text;
             CacheData.Seq = comboBox1.Text;
-            Form1 qr = new Form1(CacheData.CurrentGroupList[comboBox2.SelectedIndex], this.Text);
+
+            //加载当前选中群的群员信息
+            label1.Text = "正在加载选中群的群员信息";
+            GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[comboBox2.SelectedIndex];
+            CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi,currentSelectedGroup.GroupId);
+
+
+        Form1 qr = new Form1(currentSelectedGroup, this.Text);
             CacheData.MainFrom = qr;
             qr.Show();
             Hide();
@@ -208,10 +219,13 @@ namespace AI
                 List<GroupInfo> qqQunList = CoolQApiExtend.GetGroupList(CacheData.CoolQApi);
             
             
-                //将数据刷新到组件
+                //将群数据刷新到组件
                 RefreshQunListCom(qqQunList);
+                //说明：加载选中群员的信息转移到了button3_Click
+
                 //webChat.FriendsList(false);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show("刷新群列表出现异常，原因："+ex.Message);
                 MyLogUtil.ErrToLog("刷新群列表出现异常，原因：" + ex);
