@@ -42,13 +42,15 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
         public int zongyingkui = 0;//总盈亏
         public int zongxiazhu = 0;//总下注积分
 
-        public string bendibeizhu = "";//本地备注
+        public string bendibeizhu = "";//本地备注（存我们数据库的）
 
         public GroupMemberInfoWithBocai(GroupMemberInfo groupMemberBaseInfo,int arrIndex)
         {
             GroupMemberBaseInfo = groupMemberBaseInfo;
             ArrIndex = arrIndex;
-            this.Seq = groupMemberBaseInfo.NickName + groupMemberBaseInfo.Number;
+            //this.Seq = groupMemberBaseInfo.NickName + groupMemberBaseInfo.Number;
+            this.Seq = ""+groupMemberBaseInfo.Number;//每一个用户的识别码只用qq号码来标识
         }
+
     }
 }

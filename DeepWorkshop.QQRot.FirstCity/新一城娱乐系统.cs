@@ -268,12 +268,14 @@ namespace WindowsFormsApplication4
                 {
                     dr = dR[0];
                 }
+                MyLogUtil.ToLogFotTest("查看此用户："+jp.GroupMemberBaseInfo.Number+"的数据库存储的备注"+ dr["本地备注"].ToString());
                 try
                 {
                     item.SubItems.Add(dr["本地备注"].ToString());
                 }
                 catch (Exception ex)
                 {
+                    MyLogUtil.ToLogFotTest("看看本地备注名称"+ jp.RemarkName);
                     item.SubItems.Add(jp.RemarkName);//备注
                 }
                 item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
@@ -1324,8 +1326,8 @@ namespace WindowsFormsApplication4
             else
             {
                 ListViewItem item = new ListViewItem();
-                item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName + groupMember.GroupMemberBaseInfo.Number);//群名
-                item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);//群号
+                item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);//昵称
+                item.SubItems.Add(groupMember.bendibeizhu);//备注 原先为groupMember.RemarkName
                 item.SubItems.Add(Content);//发送的群信息
                 item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 item.SubItems.Add(msgid);//发送群消息返回的结果
@@ -1333,7 +1335,7 @@ namespace WindowsFormsApplication4
                 item.SubItems.Remove(item.SubItems[0]);
                 lvQunXiaoXi.Items.Insert(0, item);
                 List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
-                KeyVal zcs1 = new KeyVal("seq", groupMember.GroupMemberBaseInfo.NickName + groupMember.GroupMemberBaseInfo.Number);
+                KeyVal zcs1 = new KeyVal("seq", groupMember.Seq);
                 zcs.Add(zcs1);
                 KeyVal zcs2 = new KeyVal("昵称", groupMember.GroupMemberBaseInfo.NickName);//群名
                 zcs.Add(zcs2);
@@ -2403,8 +2405,10 @@ namespace WindowsFormsApplication4
 
                 foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
+                    MyLogUtil.ToLogFotTest("一键修改,会员seq值：" + jp.Seq + ",lvChengYuanJiFen值：" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text);
                     if (jp.Seq == lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text)
                     {
+                        
                         jp.bendibeizhu = textBox27.Text;
                         break;
                     }
