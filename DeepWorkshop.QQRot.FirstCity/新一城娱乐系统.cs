@@ -257,7 +257,8 @@ namespace WindowsFormsApplication4
                 if (dR.Length == 0)
                 {
                     string nickname = jp.GroupMemberBaseInfo.NickName.Replace(",", "").Replace("/", "");
-                    SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.Seq + "','" + nickname + "','否','0','0','0'", " Friends_" + CacheData.Seq);
+                    //注意昵称中包含很多特殊字符，这里昵称中的非汉字字符下划线过滤掉以便存储到数据库
+                    SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.Seq + "','" + MyRegexUtil.RemoveSpecialCharacters(nickname) + "','否','0','0','0'", " Friends_" + CacheData.Seq);
 
                     dr[4] = "否";
                     dr[5] = "0";
@@ -2808,7 +2809,6 @@ namespace WindowsFormsApplication4
         /// <param name="b">酷q中gif、jpg用同一个方法，此参数作废</param>
         public void fasong(string xzmx, bool b)
         {
-            
             if (checkBox3.Checked)//系统设置->图片模式
             {
                 Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
@@ -2829,8 +2829,6 @@ namespace WindowsFormsApplication4
                 string msgid = send(_group.GroupId, xzmx);
                 jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
-            
-            
         }
 
         /// <summary>
