@@ -403,7 +403,6 @@ namespace WindowsFormsApplication4
 
         }
 
-        /// 正在适配
         /// <summary>
         /// 接收的群消息处理（QQ版本）
         /// </summary>
@@ -668,6 +667,7 @@ namespace WindowsFormsApplication4
 
             if (_qiuDaosl != 0 && _fengPan == false)
             {
+                MyLogUtil.ToLogFotTest("下注之前的数据："+conter);
                 conter = conter.Replace("/ ", "/")
                             .Replace("/  ", "/")
                             .Replace("/  ", "/")
@@ -676,6 +676,7 @@ namespace WindowsFormsApplication4
                             .Replace("  /", "/")
                             .Replace("  /", "/")
                             .Replace("  /", "/");
+                MyLogUtil.ToLogFotTest("下注之前准备用空格分隔的数据：" + conter);
                 if (xiazhu(conter.Split(' '), gr, groupMember) == 1)
                 {
                     string messageIdTemp = send(gr.GroupId, CoolQCode.At(fromQQ) + "不满足攻击条件");//酷q发送群消息
@@ -742,7 +743,6 @@ namespace WindowsFormsApplication4
             
             return true;
         }
-        /// 正在适配
         /// <summary>
         /// 
         /// </summary>
@@ -2362,7 +2362,6 @@ namespace WindowsFormsApplication4
             new 报表(CacheData.Seq, textBox23.Text).Show();
         }
 
-        /// 正在适配
         /// <summary>
         /// 一键修改备注和入局
         /// </summary>
@@ -2424,7 +2423,6 @@ namespace WindowsFormsApplication4
             
         }
 
-        ///正在适配
         /// <summary>
         /// 更新记录  上分下分下注
         /// </summary>
@@ -2476,7 +2474,7 @@ namespace WindowsFormsApplication4
             
         }
 
-        ///正在适配
+
         /// <summary>
         /// 同意上分
         /// </summary>
@@ -2551,7 +2549,6 @@ namespace WindowsFormsApplication4
             
         }
 
-        /// 正在适配
         /// <summary>
         /// 同意下分
         /// </summary>
@@ -2571,20 +2568,31 @@ namespace WindowsFormsApplication4
                 {
                     int id = int.Parse(listView4.CheckedItems[i].SubItems[2].Text);
                     int jf = int.Parse(listView4.CheckedItems[i].SubItems[4].Text);
-                    CacheData.GroupMemberInfoList[id].zongjifen -= jf;
-                    SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + listView4.CheckedItems[i].SubItems[0].Text + "','" + CacheData.GroupMemberInfoList[id].Seq + "','" + _kaiJiangData.qihao + "','下分','" + jf.ToString() + "','" + CacheData.GroupMemberInfoList[id].zongjifen + "',''", " liushui_" + CacheData.Seq);
-                    cont += CoolQCode.At(CacheData.GroupMemberInfoList[id].GroupMemberBaseInfo.Number) + " 下分成功\n余量:" + CacheData.GroupMemberInfoList[id].zongjifen;
-
-                    string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + CacheData.GroupMemberInfoList[id].Seq + "'", "'现有积分'='" + CacheData.GroupMemberInfoList[id].zongjifen + "'");
-                    SQLiteHelper.ExecuteNonQuery(delStr);
-                    lvChengYuanJiFen.Items[id].SubItems[5].Text = CacheData.GroupMemberInfoList[id].zongjifen.ToString();
-                    listView4.CheckedItems[i].Remove();
-                    m = listView4.CheckedItems.Count;
-                    i = -1;
-                    lock (obj)
+                    if (CacheData.GroupMemberInfoList[id].zongjifen - jf >= 0)
                     {
-                        _zongJiFen -= jf;
+                        CacheData.GroupMemberInfoList[id].zongjifen -= jf;
+                        SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注", "'" + listView4.CheckedItems[i].SubItems[0].Text + "','" + CacheData.GroupMemberInfoList[id].Seq + "','" + _kaiJiangData.qihao + "','下分','" + jf.ToString() + "','" + CacheData.GroupMemberInfoList[id].zongjifen + "',''", " liushui_" + CacheData.Seq);
+                        cont += CoolQCode.At(CacheData.GroupMemberInfoList[id].GroupMemberBaseInfo.Number) + " 下分成功\n余量:" + CacheData.GroupMemberInfoList[id].zongjifen;
+
+                        string delStr = string.Format(@"UPDATE Friends_" + CacheData.Seq + " SET {0} where seq='" + CacheData.GroupMemberInfoList[id].Seq + "'", "'现有积分'='" + CacheData.GroupMemberInfoList[id].zongjifen + "'");
+                        SQLiteHelper.ExecuteNonQuery(delStr);
+                        lvChengYuanJiFen.Items[id].SubItems[5].Text = CacheData.GroupMemberInfoList[id].zongjifen.ToString();
+                        listView4.CheckedItems[i].Remove();
+                        m = listView4.CheckedItems.Count;
+                        i = -1;
+                        lock (obj)
+                        {
+                            _zongJiFen -= jf;
+                        }
                     }
+                    else//说明下分的数据中有重复或者不合法数据，此次下分失败
+                    {
+                        cont += CoolQCode.At(CacheData.GroupMemberInfoList[id].GroupMemberBaseInfo.Number) + "当前余额不足以此次下分";
+                        listView4.CheckedItems[i].Remove();
+                        m = listView4.CheckedItems.Count;
+                        i = -1;
+                    }
+                    
                 }
             }
             if (cont != "")
@@ -2600,7 +2608,6 @@ namespace WindowsFormsApplication4
             
         }
 
-        /// 正在适配
         /// <summary>
         /// 拒绝下分
         /// </summary>
@@ -2728,7 +2735,7 @@ namespace WindowsFormsApplication4
         }
 
         public static Encoding _encoding = System.Text.Encoding.GetEncoding("GB2312");
-        /// 正在适配
+
         /// <summary>
         /// 实时账单
         /// </summary>
@@ -2922,7 +2929,7 @@ namespace WindowsFormsApplication4
             }
         }
 
-        /// 正在适配
+
         /// <summary>
         /// 下注修改
         /// </summary>
@@ -3040,30 +3047,36 @@ namespace WindowsFormsApplication4
             }
         }
         /// <summary>
-        /// 正在适配
+        /// 
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            
-            if (MessageBox.Show("是否关闭窗口", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+            try
             {
-                e.Cancel = true;
+                if (MessageBox.Show("是否关闭窗口", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+                {
+                    e.Cancel = true;
 
-            }
-            else
+                }
+                else
+                {
+                    //_qrWebWeChat.jieshu = false;
+                    //程序完全退出
+                    System.Environment.Exit(0);
+                }
+            }catch(Exception ex)
             {
-                //_qrWebWeChat.jieshu = false;
-                //程序完全退出
-                System.Environment.Exit(0);
+                MyLogUtil.ErrToLog("主窗口退出时出现异常，原因："+ex);
             }
+            
             
         }
 
         private void log(string str)
         {
-            FileStream fs = new FileStream(DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
+            FileStream fs = new FileStream(MySystemUtil.GetDllRoot() + DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + ":" + str);
             sw.Close();
@@ -3194,7 +3207,6 @@ namespace WindowsFormsApplication4
                 button30.Enabled = true;
             }
         }
-        /// 正在适配
         /// <summary>
         /// 
         /// </summary>
@@ -3243,7 +3255,6 @@ namespace WindowsFormsApplication4
                 frmFeiPan.Show();
             }
         }
-        /// 正在适配
         /// <summary>
         /// 
         /// </summary>
@@ -3320,8 +3331,6 @@ namespace WindowsFormsApplication4
             return true;
         }
 
-
-        /// 正在适配
         /// <summary>
         /// 飞盘失败返还积分
         /// </summary>
@@ -3627,7 +3636,6 @@ namespace WindowsFormsApplication4
 
         }
 
-        /// 正在适配
         /// <summary>
         /// 刷新群列表
         /// </summary>

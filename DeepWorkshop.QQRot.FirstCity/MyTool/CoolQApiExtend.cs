@@ -1,4 +1,5 @@
-﻿using DeepWorkshop.QQRot.FirstCity.MyModel;
+﻿using AI.Bll;
+using DeepWorkshop.QQRot.FirstCity.MyModel;
 using Newbe.CQP.Framework;
 using Newbe.CQP.Framework.Extensions;
 using System;
@@ -97,6 +98,36 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
                 foreach(GroupMemberInfo memberInfo in iterator)
                 {
                     GroupMemberInfoWithBocai groupMemberInfoWithBocai = new GroupMemberInfoWithBocai(memberInfo, list.Count);
+
+                    //增加短名字
+                    //===================2018-02===================
+                    string shortName = "";// Regex.Replace(g.NickName, @"\[[^\]]*?\]", "");                           
+                    shortName = function.filtetStingSpecial(groupMemberInfoWithBocai.GroupMemberBaseInfo.NickName);
+                    //===================2018-02===================
+
+
+                    shortName = shortName.Replace("'", "").Replace("/", "").Replace("\\", "").Replace("\"", "").Replace(".", "");
+                    bool isHanzi = false;
+                    for (int ii = 0; ii < shortName.Length; ii++)
+                    {
+                        if ((int)shortName[ii] > 127)
+                        {
+                            //是汉字
+                            isHanzi = true;
+                            break;
+                        }
+                    }
+                    if (isHanzi)
+                    {
+                        shortName = shortName.Length > 2 ? shortName.Substring(0, 2) : shortName;
+                    }
+                    else
+                    {
+                        shortName = shortName.Length > 4 ? shortName.Substring(0, 4) : shortName;
+                    }
+
+                    groupMemberInfoWithBocai.NickNameShort = shortName;
+
                     list.Add(groupMemberInfoWithBocai);
                     keyVal.Add(memberInfo.Number, groupMemberInfoWithBocai);
                 }

@@ -1,4 +1,5 @@
 ﻿using DeepWorkshop.QQRot.FirstCity;
+using DeepWorkshop.QQRot.FirstCity.MyTool;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -1088,7 +1089,7 @@ namespace AI.Bll
 
         public static void log(string str)
         {
-            FileStream fs = new FileStream(DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
+            FileStream fs = new FileStream(MySystemUtil.GetDllRoot() + DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + ":" + str);
             sw.Close();
@@ -1097,7 +1098,7 @@ namespace AI.Bll
 
         public static void logWx(string str)
         {
-            FileStream fs = new FileStream("wx" + DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
+            FileStream fs = new FileStream(MySystemUtil.GetDllRoot() + "wx" + DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + ":" + str);
             sw.Close();
@@ -1107,7 +1108,7 @@ namespace AI.Bll
         //===================2018-02===================
         public static void logFp(string str)
         {
-            FileStream fs = new FileStream("fp" + DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
+            FileStream fs = new FileStream(MySystemUtil.GetDllRoot() + "fp" + DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(DateTime.Now.ToString("HH:mm:ss") + ":" + str);
             sw.Close();

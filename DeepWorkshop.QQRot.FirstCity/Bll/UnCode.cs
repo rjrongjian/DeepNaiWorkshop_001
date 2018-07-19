@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DeepWorkshop.QQRot.FirstCity.MyTool;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -142,7 +143,7 @@ namespace 新一城娱乐系统.Bll
 
         private void log(string str)
         {
-            FileStream fs = new FileStream(DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
+            FileStream fs = new FileStream(MySystemUtil.GetDllRoot()+DateTime.Now.ToString("yyyyMMdd") + ".txt", FileMode.Append);
             StreamWriter sw = new StreamWriter(fs);
             sw.WriteLine(DateTime.Now.ToString("HHmmss") + ":" + str);
             sw.Close();

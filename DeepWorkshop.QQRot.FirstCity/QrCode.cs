@@ -200,6 +200,11 @@ namespace AI
 
         private void button1_Click(object sender, EventArgs e)
         {
+            if (String.IsNullOrWhiteSpace(textBox1.Text))
+            {
+                MessageBox.Show("数据库名不能为空");
+                return;
+            }
             SQL sql = new SQL(textBox1.Text);
             Action<string> locat = (x) => { comboBox1.Items.Add(x); };
             comboBox1.Invoke(locat, textBox1.Text);
