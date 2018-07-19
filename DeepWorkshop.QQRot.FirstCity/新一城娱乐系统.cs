@@ -2830,6 +2830,7 @@ namespace WindowsFormsApplication4
                 jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
             
+            
         }
 
         /// <summary>
@@ -3644,8 +3645,8 @@ namespace WindowsFormsApplication4
         private void button5_Click_1(object sender, EventArgs e)
         {
 
-            GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[comboBox2.SelectedIndex];
-            MyLogUtil.ToLogFotTest("#####进入主界面后，刷新群员列表选中的群：" + currentSelectedGroup.GroupName + "____" + currentSelectedGroup.GroupId);
+            GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[CacheData.SelectedGroupIndex];
+            //MyLogUtil.ToLogFotTest("#####进入主界面后，刷新群员列表选中的群：" + currentSelectedGroup.GroupName + "____" + currentSelectedGroup.GroupId+"___"+ comboBox2.SelectedIndex);
             CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi, currentSelectedGroup.GroupId);
 
             if (_dgvThread == null || _dgvThread.ThreadState != ThreadState.Running)
