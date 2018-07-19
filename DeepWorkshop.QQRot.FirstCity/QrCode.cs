@@ -189,6 +189,7 @@ namespace AI
             //加载当前选中群的群员信息
             label1.Text = "正在加载选中群的群员信息";
             GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[comboBox2.SelectedIndex];
+            MyLogUtil.ToLogFotTest("#####进入主界面前，选中的群："+currentSelectedGroup.GroupName+"____"+currentSelectedGroup.GroupId);
             CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi,currentSelectedGroup.GroupId);
 
 

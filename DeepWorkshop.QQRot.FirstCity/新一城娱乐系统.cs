@@ -3645,6 +3645,7 @@ namespace WindowsFormsApplication4
         {
 
             GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[comboBox2.SelectedIndex];
+            MyLogUtil.ToLogFotTest("#####进入主界面后，刷新群员列表选中的群：" + currentSelectedGroup.GroupName + "____" + currentSelectedGroup.GroupId);
             CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi, currentSelectedGroup.GroupId);
 
             if (_dgvThread == null || _dgvThread.ThreadState != ThreadState.Running)
