@@ -148,6 +148,7 @@
             this.MaximizeBox = false;
             this.Name = "login";
             this.Text = "登录/注册";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.login_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

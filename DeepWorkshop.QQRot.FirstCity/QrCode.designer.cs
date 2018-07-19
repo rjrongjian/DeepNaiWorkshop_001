@@ -152,6 +152,7 @@
             this.MaximizeBox = false;
             this.Name = "QrCode";
             this.Text = "新一城娱乐系统V1.0";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.QrCode_FormClosing);
             this.ResumeLayout(false);
             this.PerformLayout();
 

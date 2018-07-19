@@ -100,6 +100,21 @@ namespace 新一城娱乐系统
                 MessageBox.Show("帐号已存在！");
         }
 
+        private void login_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("是否关闭窗口", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+            {
+                e.Cancel = true;
+
+            }
+            else
+            {
+                //_qrWebWeChat.jieshu = false;
+                //程序完全退出
+                System.Environment.Exit(0);
+            }
+        }
+
 
         /*http://api.kaijiangtong.com/lottery/?name=cqssc&format=xml&uid=776619&token=fab1b9946276941fd218473332a69235b5fd71aa&num=1
             

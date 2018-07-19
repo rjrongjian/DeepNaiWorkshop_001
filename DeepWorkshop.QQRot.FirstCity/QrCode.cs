@@ -256,5 +256,20 @@ namespace AI
             Action<string> txt = (x) => { label1.Text = x; };
             label1.Invoke(txt, "刷新群列表完成，时间："+ DateTime.Now.ToString());
         }
+
+        private void QrCode_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("是否关闭窗口", "确认", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.No)
+            {
+                e.Cancel = true;
+
+            }
+            else
+            {
+                //_qrWebWeChat.jieshu = false;
+                //程序完全退出
+                System.Environment.Exit(0);
+            }
+        }
     }
 }
