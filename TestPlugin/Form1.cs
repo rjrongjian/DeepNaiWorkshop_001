@@ -36,5 +36,23 @@ namespace TestPlugin
             MessageInfo message = MyMessageUtil.ConvertMessage(textBox1.Text);
             Console.WriteLine("哈哈哈哈："+message.MessageType);
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            String conter = "13/13579/5";
+            //测试下注
+            conter = conter.Replace("/ ", "/")
+                            .Replace("/  ", "/")
+                            .Replace("/  ", "/")
+                            .Replace("/   ", "/")
+                            .Replace(" /", "/")
+                            .Replace("  /", "/")
+                            .Replace("  /", "/")
+                            .Replace("  /", "/");
+            Console.WriteLine("替换后的数据："+conter);
+        }
+
+
+
     }
 }

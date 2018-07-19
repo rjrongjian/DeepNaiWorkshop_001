@@ -693,12 +693,18 @@ namespace WindowsFormsApplication4
         /// 增加下注
         /// </summary>
         /// <param name="gr"></param>
-        /// <param name="x">数据表</param>
-        /// <param name="y">积分</param>
+        /// <param name="x">数据表（指定球道中的几号球下注）</param>
+        /// <param name="y">下注积分积分</param>
         /// <returns></returns>
         private bool add(GroupInfo gr,GroupMemberInfoWithBocai groupMember, ref int x, int y, int id)
         {
-            
+            ///groupMember.lszjf 49
+            ///groupMember.lsxzjf = 0;
+            ///此时的下注积分y为5
+            ///此时的配置
+            ///textBox24 下注积分必须为此值的倍数 1
+            ///textBox25 最小下注额 5
+            ///textBox26 最大下注额 100000
             int totalXiazu = groupMember.benqixiazhu;
 
             if (_guiZe.cshxe[id].dqxz > _guiZe.cshxe[id].xe)
@@ -711,7 +717,8 @@ namespace WindowsFormsApplication4
             {
                 return false;
             }
-            if (int.Parse(textBox26.Text) <= _eDuMax)//最大额度 totalXiazu+y
+            //此代码废弃
+            if (int.Parse(textBox26.Text) <= _eDuMax)//最大额度 totalXiazu+y   每次下注成功后这个_eDuMax才会更新，所以第一次没有控制住
             {
                 return false;
             }
@@ -752,7 +759,7 @@ namespace WindowsFormsApplication4
         /// <returns></returns>
         private int xiazhu(string[] contstring, GroupInfo gr,GroupMemberInfoWithBocai groupMember)
         {
-            
+            MyLogUtil.ToLogFotTest("测试下注，需要的模拟数据，groupMember.zongjifen:" + groupMember.zongjifen + "___groupMember.benqixiazhu:" + groupMember.benqixiazhu);
             xztj lsxz = new xztj();
             try
             {
@@ -893,23 +900,33 @@ namespace WindowsFormsApplication4
                     #endregion 大小单双
 
                     #region 单球
-
+                    ///13/13579/5 分割后 数组的长度为3
                     if (fz.Length == 3)
                     {
+                        //判断此次下注是否超过限额
+                        if (fz[0].Length * fz[1].Length * int.Parse(fz[2]) > int.Parse(textBox26.Text))
+                        {
+                            string msgid = send(gr.GroupId, CoolQCode.At(groupMember.GroupMemberBaseInfo.Number) + "失败，不符合攻击条件！");//酷q发送群消息                                                                                             //if (msgid != "")
+                            jzxx(_group, CoolQCode.At(groupMember.GroupMemberBaseInfo.Number) + "失败，不符合攻击条件！", msgid);
+                            continue;
+                        }
+
+
                         int wz = -1;
                         // 万2/0123456789/20
                         if (int.TryParse(fz[1], out wz))
                         {
+                            ///验证球道是不是指定的球道编号,例如336/5/3 就不能通过
                             for (int i = 0; i < fz[0].Length; i++)
                             {
                                 if ("12345万千百十个".IndexOf(fz[0].Substring(i, 1)) == -1)
                                     return 2;
                             }
-                            for (int i = 0; i < fz[1].Length; i++)
+                            for (int i = 0; i < fz[1].Length; i++)///fz[1]=wz=13579
                             {
-                                wz = int.Parse(fz[1].Substring(i, 1));
+                                wz = int.Parse(fz[1].Substring(i, 1));///1
                                 if (fz[0].IndexOf("1") != -1 || fz[0].IndexOf("万") != -1)
-                                    if (_qiuDao1)
+                                    if (_qiuDao1)///表示在球道1下注
                                     {
                                         if (!add(gr, groupMember, ref  lsxz.QD[0, wz], int.Parse(fz[2]), 4 + wz)) return 1;
                                     }
