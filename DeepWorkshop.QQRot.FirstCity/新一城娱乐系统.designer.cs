@@ -2666,6 +2666,7 @@
             this.Name = "Form1";
             this.Text = "新一城娱乐系统V1.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             this.tabControl1.ResumeLayout(false);
             this.账单.ResumeLayout(false);
             this.账单.PerformLayout();

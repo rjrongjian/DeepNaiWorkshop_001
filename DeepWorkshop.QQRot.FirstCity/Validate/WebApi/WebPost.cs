@@ -32,6 +32,7 @@ namespace WinFrom_WebApi_Demo
                 request.Method = "POST";
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.UserAgent = DefaultUserAgent;
+                request.KeepAlive = false;
 
                 //如果需要POST数据     
                 if (!(parameters == null || parameters.Count == 0))

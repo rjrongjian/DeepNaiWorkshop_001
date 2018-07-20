@@ -3,6 +3,7 @@ using AI.Bll;
 using AI.Dal;
 using Bll;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
+using DeepWorkshop.QQRot.FirstCity.Validate;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;

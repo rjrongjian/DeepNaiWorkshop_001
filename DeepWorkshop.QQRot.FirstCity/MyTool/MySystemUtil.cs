@@ -31,13 +31,16 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
             return str;
            
         }
+
+        
         /// <summary>
         /// 获取插件dll根目录，用于存放此dll应用信息
         /// </summary>
         /// <returns></returns>
         public static string GetDllRoot()
         {
-            string dirPath = GetPath()+@"local\";
+            //string dirPath = GetPath()+@"local\";
+            string dirPath = GetExeRootPath() + @"local\";
             if (!Directory.Exists(dirPath))
             {
                 Directory.CreateDirectory(dirPath);

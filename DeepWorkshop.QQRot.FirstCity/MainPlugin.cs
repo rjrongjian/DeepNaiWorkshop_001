@@ -18,6 +18,7 @@ namespace DeepWorkshop.QQRot.FirstCity
     public class MainPlugin : PluginBase
     {
         public static Form1 frmMain = null;//软件主窗口
+        private bool IsSupportedRuntimeVersion = false;
         public MainPlugin(ICoolQApi coolQApi) : base(coolQApi)
         {
             try
@@ -28,10 +29,24 @@ namespace DeepWorkshop.QQRot.FirstCity
                 CacheData.LoginNick = coolQApi.GetLoginNick();
                 MyLogUtil.ToLogFotTest(CacheData.LoginQQ + "_" + CacheData.LoginNick);
                 */
+                //先判断当前电脑是否有合适的.net版本
+                if (!MyDotNetFrameworkUtil.IsSupportedRuntimeVersion())
+                {
+                    IsSupportedRuntimeVersion = false;
+
+
+
+                    return;
+                }
+                else
+                {
+                    IsSupportedRuntimeVersion = true;
+                    CacheData.CoolQApi = coolQApi;
+                    //酷q登录成功后，进入软件登录页面
+                    new login().Show();
+                }
+
                 
-                CacheData.CoolQApi = coolQApi;
-                //酷q登录成功后，进入软件登录页面
-                new login().Show();
                 
             }
             catch (Exception ex)
@@ -77,7 +92,11 @@ namespace DeepWorkshop.QQRot.FirstCity
         /// <returns></returns>
         public override int ProcessGroupMessage(int subType, int sendTime, long fromGroup, long fromQq, string fromAnonymous, string msg, int font)
         {
-            frmMain.MessageArrival(fromGroup, fromQq, msg);
+            //在进入主界面容易崩溃，是不是因为软件环境还没油准备好，就去处理消息了
+            if (IsSupportedRuntimeVersion&&CacheData.IsInitComplete)//只有当主界面完全加载完成，CacheData.IsInitComplete才会变为true
+            {
+                frmMain.MessageArrival(fromGroup, fromQq, msg);
+            }
             return base.ProcessGroupMessage(subType, sendTime, fromGroup, fromQq, fromAnonymous, msg, font);
         }
         /*

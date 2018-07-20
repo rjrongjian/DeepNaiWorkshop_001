@@ -24,5 +24,6 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
         public static List<GroupMemberInfoWithBocai> GroupMemberInfoList;//当前选择的qq群的群员list
         public static Dictionary<long, GroupMemberInfoWithBocai> GroupMemberInfoDic;////当前选择的qq群的群员Dictionary，方便找群员信息
         public static MyDictionaryUtil<long, GroupMemberInfoWithBocai> SearchMemberInfo = new MyDictionaryUtil<long, GroupMemberInfoWithBocai>();//用于查询群成员信息的查询器
+        public static bool IsInitComplete = false;
     }
 }

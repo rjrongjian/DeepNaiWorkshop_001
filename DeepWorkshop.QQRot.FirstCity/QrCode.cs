@@ -27,15 +27,7 @@ namespace AI
             {
                 InitializeComponent();
                 this.Text = title;
-                /*
-                webChat = new WebWeChat();
-                pictureBox1.Image = function.BytesToImage(HttpHelps.GetQr(webChat.QrCode));
-                Thread th = new Thread(new ThreadStart(delegate { webChat.Scanning(); }));
-                th.IsBackground = true;
-                th.Start();
-                webChat.SetImage += new WebWeChat.myHandler(this.Setimg);
-                webChat.cl += new WebWeChat.clos(QrCodeClose);
-                */
+                
                 try
                 {
                     SQLiteHelper.CreateDataBase();
@@ -72,102 +64,13 @@ namespace AI
                 if (comboBox1.Items.Count != 0)
                     comboBox1.SelectedIndex = 0;
             }
-            catch (Exception ex) { MessageBox.Show(ex.Message); }
-        }
-        //public WebWeChat webChat;
-        
-        /// <summary>
-        /// 扫描成功显示头像
-        /// </summary>
-        /// <param name="img"></param>
-        private void Setimg(Image img)
-        {
-            /*
-            // 当一个控件的InvokeRequired属性值为真时，说明有一个创建它以外的线程想访问它
-            Action<Size> actionDelegate = (x) => { this.pictureBox1.Size = x; };
-
-            pictureBox1.Invoke(actionDelegate, new Size(95, 95));
-            Action<Point> locat = (x) => { this.pictureBox1.Location = x; };
-            pictureBox1.Invoke(locat, new Point(95, 100));
-
-            pictureBox1.Image = img;
-
-            Action<bool> labe2 = (x) => { this.label2.Visible = x; };
-            label2.Invoke(labe2, false);
-
-            Action<bool> labe3 = (x) => { this.label3.Visible = x; };
-            label3.Invoke(labe3, true);
-
-            Action<bool> labe4 = (x) => { this.label4.Visible = x; };
-            label4.Invoke(labe4, true);
-            */
-        }
-        /// <summary>
-        /// 返回重新扫描
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void label4_Click(object sender, EventArgs e)
-        {
-            /*
-            pictureBox1.Size = new Size(190, 190);
-            pictureBox1.Location = new Point(45, 80);
-            webChat = new WebWeChat();
-            pictureBox1.Image = function.BytesToImage(HttpHelps.GetQr(webChat.QrCode));
-            Thread th = new Thread(new ThreadStart(delegate { webChat.Scanning(); }));
-            th.IsBackground = true;
-            th.Start();
-            webChat.SetImage += new WebWeChat.myHandler(this.Setimg);
-            webChat.cl += new WebWeChat.clos(QrCodeClose);
-            */
-        }
-
-
-        /// <summary>
-        /// 关闭窗体
-        /// </summary>
-        /// <param name="img"></param>
-        private void QrCodeClose()
-        {
-            /*
-            webChat.jzhy += new WebWeChat.listhy(sjxs);
-            Action<string> locat = (x) => { label1.Text = x; };
-            label1.Invoke(locat, "正在加载数据......");
-            //this.Invoke(new AddText(DoWork));
-            */
-        }
-        /// <summary>
-        /// 给combox2加载群数据
-        /// </summary>
-        /// <param name="dt"></param>
-        public void sjxs(DataTable dt)
-        {
-            /*
-            Action<string> t = (x) => { comboBox2.Items.Clear(); };
-            comboBox2.Invoke(t, "");
-
-            if (webChat.grox == null) return;
-            for (int i =0;i< webChat.grox.Count;i++)
-            {
-                //判断数据库
-                Action<string> locat = (x) => { comboBox2.Items.Add(x); comboBox2.SelectedIndex = 0; };
-                comboBox2.Invoke(locat, webChat.grox[i].NickName);
-                //if (SQL.tabelbool("Friends_" + webChat.grox[i].seq))
+            catch (Exception ex) {
+                CacheData.CoolQApi.AddLog(40, Newbe.CQP.Framework.CoolQLogLevel.Debug, "QrCode 构造方法出错："+ ex.ToString());
+                MessageBox.Show(ex.Message);
             }
-            Action<string> txt = (x) => { label1.Text = x; };
-            label1.Invoke(txt, "加载完毕,请选择群开始操作！");
-            */
         }
-        public delegate void AddText();
-        private void DoWork()
-        {
-            /*
-           // Form1 qr = new Form1(webChat);
-            //qr.Show();
-            Hide();
-            //Close();
-            */
-        }
+       
+
         /// <summary>
         /// 进入主界面
         /// </summary>
@@ -175,28 +78,39 @@ namespace AI
         /// <param name="e"></param>
         private void button3_Click(object sender, EventArgs e)
         {
-            if (comboBox1.Text == "" || comboBox2.Text == "")
+            try
             {
-                MessageBox.Show("请选择qq群和数据库！");
-                return;
+                if (comboBox1.Text == "" || comboBox2.Text == "")
+                {
+                    MessageBox.Show("请选择qq群和数据库！");
+                    return;
+                }
+                //缓存当前选中的QQ群
+                CacheData.SelectedGroupIndex = comboBox2.SelectedIndex;
+
+                //webChat.grox[comboBox2.SelectedIndex].seq = comboBox1.Text;
+                CacheData.Seq = comboBox1.Text;
+
+                //加载当前选中群的群员信息
+                label1.Text = "正在加载选中群的群员信息";
+                MyLogUtil.ToLogFotTest("选中的索引值："+ CacheData.SelectedGroupIndex);
+                GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[CacheData.SelectedGroupIndex];
+                //MyLogUtil.ToLogFotTest("#####进入主界面前，选中的群："+currentSelectedGroup.GroupName+"____"+currentSelectedGroup.GroupId + "___" + comboBox2.SelectedIndex);
+                CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi, currentSelectedGroup.GroupId);
+
+
+                Form1 qr = new Form1(currentSelectedGroup, this.Text);
+                CacheData.MainFrom = qr;
+                qr.Show();
+                Hide();
+                MyMemoryUtil.ClearMemory();//释放内存
+            }catch(Exception ex)
+            {
+                CacheData.CoolQApi.AddLog(40, Newbe.CQP.Framework.CoolQLogLevel.Debug, "qrCode类中button3_Click方法出错，异常信息："+ex);
+                MyLogUtil.ErrToLog("进入主界面时出现错误，原因:"+ex);
+                MessageBox.Show("进入主界面出现错误");
             }
-            //缓存当前选中的QQ群
-            CacheData.SelectedGroupIndex = comboBox2.SelectedIndex;
-
-            //webChat.grox[comboBox2.SelectedIndex].seq = comboBox1.Text;
-            CacheData.Seq = comboBox1.Text;
-
-            //加载当前选中群的群员信息
-            label1.Text = "正在加载选中群的群员信息";
-            GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[CacheData.SelectedGroupIndex];
-            //MyLogUtil.ToLogFotTest("#####进入主界面前，选中的群："+currentSelectedGroup.GroupName+"____"+currentSelectedGroup.GroupId + "___" + comboBox2.SelectedIndex);
-            CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi,currentSelectedGroup.GroupId);
-
-
-        Form1 qr = new Form1(currentSelectedGroup, this.Text);
-            CacheData.MainFrom = qr;
-            qr.Show();
-            Hide();
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -219,6 +133,7 @@ namespace AI
         /// <param name="e"></param>
         private void button2_Click(object sender, EventArgs e)
         {
+            button2.Enabled = false;
             try {
                 label1.Text = "正在刷新群列表...";
                 //获取QQ群列表
@@ -233,9 +148,11 @@ namespace AI
             }
             catch (Exception ex)
             {
+                label1.Text = "请重新获取";
                 MessageBox.Show("刷新群列表出现异常，原因："+ex.Message);
                 MyLogUtil.ErrToLog("刷新群列表出现异常，原因：" + ex);
             }
+            button2.Enabled = true;
         }
         /// <summary>
         /// 将群列表数据刷新到控件
@@ -243,6 +160,7 @@ namespace AI
         /// <param name="qqQunList"></param>
         private void RefreshQunListCom(List<GroupInfo> qqQunList)
         {
+            /*
             Action<string> t = (x) => { comboBox2.Items.Clear(); };
             comboBox2.Invoke(t, "");
 
@@ -256,6 +174,15 @@ namespace AI
             }
             Action<string> txt = (x) => { label1.Text = x; };
             label1.Invoke(txt, "刷新群列表完成，时间："+ DateTime.Now.ToString());
+            */
+            if (qqQunList == null || qqQunList.Count == 0) return;
+            comboBox2.Items.Clear();
+            for (int i = 0; i < qqQunList.Count; i++)
+            {
+                comboBox2.Items.Add(qqQunList[i].GroupName);
+            }
+            comboBox2.SelectedIndex = 0;
+            label1.Text = "刷新群列表完成," + DateTime.Now.ToString();
         }
 
         private void QrCode_FormClosing(object sender, FormClosingEventArgs e)
@@ -272,5 +199,7 @@ namespace AI
                 System.Environment.Exit(0);
             }
         }
+
+       
     }
 }

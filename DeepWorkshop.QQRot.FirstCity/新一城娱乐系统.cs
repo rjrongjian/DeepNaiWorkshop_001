@@ -26,6 +26,10 @@ namespace WindowsFormsApplication4
 {
     public partial class Form1 : Form
     {
+        private GroupInfo qzForFormLoad;
+        private string titleForFormLoad;
+
+
         public static string ShouQuanServer = "http://193.112.91.139";
 
         private WebWeChat _qrWebWeChat = null;
@@ -123,6 +127,11 @@ namespace WindowsFormsApplication4
         public Form1( GroupInfo qz, string title)
         {
             InitializeComponent();
+            this.qzForFormLoad = qz;
+            this.titleForFormLoad = title;
+
+
+            /*
             //初始化当前登陆的qq
             CacheData.LoginQQ = CacheData.CoolQApi.GetLoginQQ();
             CacheData.LoginNick = CacheData.CoolQApi.GetLoginNick();
@@ -217,17 +226,18 @@ namespace WindowsFormsApplication4
                     textBox25.Text = det.Rows[0]["最小"].ToString();
                     textBox26.Text = det.Rows[0]["最大"].ToString();
                     //修复数组越界，表中首条数据只有账单字段有值，所以这些字段无需做此分割操作
-                    comboBox1.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘前"].ToString())?"":det.Rows[0]["封盘前"].ToString().Split('|')[1];
-                    comboBox6.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘"].ToString()) ?"":det.Rows[0]["封盘"].ToString().Split('|')[1];
+                    comboBox1.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘前"].ToString()) ? "" : det.Rows[0]["封盘前"].ToString().Split('|')[1];
+                    comboBox6.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘"].ToString()) ? "" : det.Rows[0]["封盘"].ToString().Split('|')[1];
                 }
-                catch (Exception ex) {
-                    MyLogUtil.ErrToLog("初始化主窗口出错，原因："+ex);
+                catch (Exception ex)
+                {
+                    MyLogUtil.ErrToLog("初始化主窗口出错，原因：" + ex);
                     MessageBox.Show(ex.Message);
                 }
             }
 
             MainPlugin.frmMain = this;
-
+            */
         }
 
         public delegate void AddHandler(string a, GROUP b, string MsgId);
@@ -239,6 +249,7 @@ namespace WindowsFormsApplication4
         /// </summary>
         public void dgv2()
         {
+            button5.Enabled = false;//在刷新列表的时候，禁止刷新按钮可用
             try { 
             lvChengYuanJiFen.Items.Clear();
             if (_group == null) return;
@@ -310,6 +321,7 @@ namespace WindowsFormsApplication4
                 item.SubItems.Add(jp.Seq);
                 item.SubItems.Add(_chengYuanShuLiang.ToString());
                 item.SubItems.Add(""+jp.GroupMemberBaseInfo.Number);//多加一个字段，代表此会员的qq号 index=11
+                
                 item.SubItems.Remove(item.SubItems[0]);
                 //if (jp.UserName == _qrWebWeChat.UserName)
                 //   continue;
@@ -324,7 +336,7 @@ namespace WindowsFormsApplication4
                 MyLogUtil.ErrToLog("加载群成员列表失败，原因："+ex);
             }
 
-
+            button5.Enabled = true;//在刷新列表完成的时候，允许
         }
 
         /// 废弃
@@ -2338,7 +2350,7 @@ namespace WindowsFormsApplication4
             feiPanFanHuan();
 
 
-
+            MyMemoryUtil.ClearMemory();//释放内存
             return zjxx + "||||||" + strzd;
             
         }
@@ -2857,6 +2869,7 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button26_Click(object sender, EventArgs e)
         {
+            
             ConfigHelper.UpdateAppConfig("qd", textBox29.Text);
             ConfigHelper.UpdateAppConfig("dq", textBox30.Text);
             ConfigHelper.UpdateAppConfig("zh", textBox31.Text);
@@ -3643,7 +3656,7 @@ namespace WindowsFormsApplication4
             try
             {
                 SoundPlayer player = new SoundPlayer();
-                player.SoundLocation = "tmpe/point.wav";
+                player.SoundLocation = MySystemUtil.GetDllRoot()+"tmpe/point.wav";
                 player.Load();
                 player.Play();
             }
@@ -3662,19 +3675,29 @@ namespace WindowsFormsApplication4
         private void button5_Click_1(object sender, EventArgs e)
         {
 
-            GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[CacheData.SelectedGroupIndex];
-            //MyLogUtil.ToLogFotTest("#####进入主界面后，刷新群员列表选中的群：" + currentSelectedGroup.GroupName + "____" + currentSelectedGroup.GroupId+"___"+ comboBox2.SelectedIndex);
-            CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi, currentSelectedGroup.GroupId);
-
-            if (_dgvThread == null || _dgvThread.ThreadState != ThreadState.Running)
+            try
             {
-                _chengYuanShuLiang = 0;
-                _dgvThread = new Thread(dgv2);
-                _dgvThread.Start();
-            }
 
-            //new Thread(dgv2).Start();
             
+                GroupInfo currentSelectedGroup = CacheData.CurrentGroupList[CacheData.SelectedGroupIndex];
+                //MyLogUtil.ToLogFotTest("#####进入主界面后，刷新群员列表选中的群：" + currentSelectedGroup.GroupName + "____" + currentSelectedGroup.GroupId+"___"+ comboBox2.SelectedIndex);
+                CoolQApiExtend.GetGroupMemberListAndCache(CacheData.CoolQApi, currentSelectedGroup.GroupId);
+
+                if (_dgvThread == null || _dgvThread.ThreadState != ThreadState.Running)
+                {
+                    _chengYuanShuLiang = 0;
+                    _dgvThread = new Thread(dgv2);
+                    _dgvThread.Start();
+                }
+            }catch(Exception ex)
+            {
+                
+                MyLogUtil.ErrToLog("刷新群列表出现异常，原因："+ ex);
+                MessageBox.Show("未能正常获取群列表，请重新获取");
+            }
+            MyMemoryUtil.ClearMemory();//释放内存
+            //new Thread(dgv2).Start();
+
         }
         /// <summary>
         /// 期号不足位数补0
@@ -3844,6 +3867,116 @@ namespace WindowsFormsApplication4
             #endregion
 
             return xiaZhuCon;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            //初始化当前登陆的qq
+            CacheData.LoginQQ = CacheData.CoolQApi.GetLoginQQ();
+            CacheData.LoginNick = CacheData.CoolQApi.GetLoginNick();
+            MyLogUtil.ToLogFotTest(CacheData.LoginQQ + "_" + CacheData.LoginNick);
+            try
+            {
+                if (ConfigHelper.GetAppConfig("qd") != null)
+                {
+                    textBox29.Text = ConfigHelper.GetAppConfig("qd");
+                    textBox30.Text = ConfigHelper.GetAppConfig("dq");
+                    textBox31.Text = ConfigHelper.GetAppConfig("zh");
+                    textBox32.Text = ConfigHelper.GetAppConfig("zhzh");
+                    textBox33.Text = ConfigHelper.GetAppConfig("lhh");
+
+                    checkBox4.Checked = ConfigHelper.GetAppConfig("账单zd").Equals("1");
+                    checkBox5.Checked = ConfigHelper.GetAppConfig("封盘前zd").Equals("1");
+                    checkBox6.Checked = ConfigHelper.GetAppConfig("封盘zd").Equals("1");
+                    checkBox7.Checked = ConfigHelper.GetAppConfig("开奖zd").Equals("1");
+                    checkBox8.Checked = ConfigHelper.GetAppConfig("下注zd").Equals("1");
+                }
+            }
+            catch (Exception ex) { }
+            foreach (lsxe ox in _guiZe.cshxe)
+            {
+                ListViewItem item = new ListViewItem();
+                item.SubItems.Add(ox.name);
+                item.SubItems.Add(ox.gz);
+                item.SubItems.Add(ox.xe.ToString());
+                item.SubItems.Add(ox.id.ToString());
+                item.SubItems.Remove(item.SubItems[0]);
+                listView5.Items.Add(item);
+            }
+            this.Text = titleForFormLoad;
+            label8.Text = "当前操作群：" + qzForFormLoad.GroupName;
+            _group = qzForFormLoad;
+            //_qrWebWeChat = webchat;
+            Control.CheckForIllegalCrossThreadCalls = false;
+
+            //此方法已做适配，见MessageArrival(long fromGroup, long fromQq, string msg)
+            //_qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
+
+            状态栏.Text = "单击启动监听开始获取群消息！";
+
+            //_group.MemberList = _qrWebWeChat.GETgrouplist(_group.DATAlist, _group.URLlist);
+            _dgvThread = new Thread(dgv2);//获取群成员列表
+            _dgvThread.Start();
+            // GamePlayer
+            timer1.Start();//开奖倒计时
+            timer2.Start();//测试网速
+
+            //更新记录期号加载
+            DateTime time1 = DateTime.Now.Date;
+            DateTime time2 = time1.AddDays(1);
+            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
+            foreach (DataRow dr in deset.Rows)
+            {
+                comboBox5.Items.Add(dr[0].ToString());
+            }
+
+
+            //文本消息配置加载
+            DataTable det = SQLiteHelper.ExecuteDataTable("select * from peizhi where Id=1", null);
+            if (det.Rows.Count == 0)
+            {
+                SQL.INSERT(
+"账单,封盘前,封盘,开奖,实时账单,下注,自定义1,自定义2,自定义3,自定义4,自定义5,倍数,最小,最大",
+"'" + textBox12.Text + "','" + textBox13.Text + "|" + comboBox1.Text + "','" + textBox14.Text + "|" + comboBox6.Text + "','" + textBox15.Text +
+"','" + textBox16.Text + "','" + textBox17.Text + "','" + textBox18.Text + "','" + textBox19.Text + "','" + textBox20.Text +
+"','" + textBox21.Text + "','" + textBox22.Text + "','" + textBox24.Text + "','" + textBox25.Text + "','" + textBox26.Text + "'"
+                , "peizhi");
+            }
+            if (det.Rows.Count == 1)
+            {
+                try
+                {
+                    textBox12.Text = det.Rows[0]["账单"].ToString();
+
+                    textBox13.Text = det.Rows[0]["封盘前"].ToString().Split('|')[0];
+                    textBox14.Text = det.Rows[0]["封盘"].ToString();
+
+                    textBox15.Text = det.Rows[0]["开奖"].ToString();
+                    textBox16.Text = det.Rows[0]["实时账单"].ToString();
+                    textBox17.Text = det.Rows[0]["下注"].ToString();
+
+                    textBox18.Text = det.Rows[0]["自定义1"].ToString();
+                    textBox19.Text = det.Rows[0]["自定义2"].ToString();
+                    textBox20.Text = det.Rows[0]["自定义3"].ToString();
+                    textBox21.Text = det.Rows[0]["自定义4"].ToString();
+                    textBox22.Text = det.Rows[0]["自定义5"].ToString();
+
+                    textBox24.Text = det.Rows[0]["倍数"].ToString();
+                    textBox25.Text = det.Rows[0]["最小"].ToString();
+                    textBox26.Text = det.Rows[0]["最大"].ToString();
+                    //修复数组越界，表中首条数据只有账单字段有值，所以这些字段无需做此分割操作
+                    comboBox1.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘前"].ToString()) ? "" : det.Rows[0]["封盘前"].ToString().Split('|')[1];
+                    comboBox6.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘"].ToString()) ? "" : det.Rows[0]["封盘"].ToString().Split('|')[1];
+                }
+                catch (Exception ex)
+                {
+                    MyLogUtil.ErrToLog("初始化主窗口出错，原因：" + ex);
+                    MessageBox.Show(ex.Message);
+                }
+            }
+
+            MainPlugin.frmMain = this;
+            CacheData.IsInitComplete = true;
         }
     }
 }

@@ -114,11 +114,13 @@
     <Compile Include="MyModel\GroupMemberInfoWithBocai.cs" />
     <Compile Include="MyModel\MessageInfo.cs" />
     <Compile Include="MyTool\MyDictionaryUtil.cs" />
+    <Compile Include="MyTool\MyDotNetFrameworkUtil.cs" />
     <Compile Include="MyTool\MyImageUtil.cs" />
     <Compile Include="MyTool\CoolQApiExtend.cs" />
     <Compile Include="MyTool\MyDateUtil.cs" />
     <Compile Include="MyTool\MyFileUtil.cs" />
     <Compile Include="MyTool\MyLogUtil.cs" />
+    <Compile Include="MyTool\MyMemoryUtil.cs" />
     <Compile Include="MyTool\MyMessageUtil.cs" />
     <Compile Include="MyTool\MyRegexUtil.cs" />
     <Compile Include="MyTool\MySystemUtil.cs" />
@@ -128,6 +130,12 @@
     </Compile>
     <Compile Include="QrCode.designer.cs">
       <DependentUpon>QrCode.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RuntimeVerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RuntimeVerForm.Designer.cs">
+      <DependentUpon>RuntimeVerForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Validate\MyValidate.cs" />
     <Compile Include="Validate\Rsa\BigInteger.cs" />
@@ -200,6 +208,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="QrCode.resx">
       <DependentUpon>QrCode.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RuntimeVerForm.resx">
+      <DependentUpon>RuntimeVerForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="报盘.resx">
       <DependentUpon>报盘.cs</DependentUpon>

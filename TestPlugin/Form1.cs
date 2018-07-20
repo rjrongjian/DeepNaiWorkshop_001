@@ -57,5 +57,19 @@ namespace TestPlugin
         {
             MyValidate.T();
         }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (!MyDotNetFrameworkUtil.IsSupportedRuntimeVersion())
+            {
+                MessageBox.Show("当前电脑运行时版本低于4.5.2");
+
+
+            }
+            else
+            {
+                MessageBox.Show("当前电脑运行时版本高于4.5.2");
+            }
+        }
     }
 }
