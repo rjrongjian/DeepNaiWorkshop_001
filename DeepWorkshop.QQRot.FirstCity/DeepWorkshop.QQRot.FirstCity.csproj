@@ -197,6 +197,7 @@
     <Content Include="Libs\Microsoft.QualityTools.Testing.Fakes.dll" />
     <Content Include="Libs\System.Data.SQLite.dll" />
     <Content Include="Libs\tessnet2_32.dll" />
+    <Content Include="readme.txt" />
     <Content Include="Resources\favicon-20170601043640553.ico" />
   </ItemGroup>
   <ItemGroup>
