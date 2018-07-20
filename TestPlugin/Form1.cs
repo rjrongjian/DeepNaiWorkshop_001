@@ -1,6 +1,7 @@
 ﻿using AI.Bll;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
 using DeepWorkshop.QQRot.FirstCity.MyTool;
+using DeepWorkshop.QQRot.FirstCity.Validate;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -52,7 +53,9 @@ namespace TestPlugin
             Console.WriteLine("替换后的数据："+conter);
         }
 
-
-
+        private void button4_Click(object sender, EventArgs e)
+        {
+            MyValidate.T();
+        }
     }
 }

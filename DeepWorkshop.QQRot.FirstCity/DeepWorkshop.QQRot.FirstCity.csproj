@@ -129,6 +129,10 @@
     <Compile Include="QrCode.designer.cs">
       <DependentUpon>QrCode.cs</DependentUpon>
     </Compile>
+    <Compile Include="Validate\MyValidate.cs" />
+    <Compile Include="Validate\Rsa\BigInteger.cs" />
+    <Compile Include="Validate\Rsa\RSAHelper.cs" />
+    <Compile Include="Validate\WebApi\WebPost.cs" />
     <Compile Include="报盘.cs">
       <SubType>Form</SubType>
     </Compile>
