@@ -28,7 +28,7 @@ namespace WindowsFormsApplication4
     {
         private GroupInfo qzForFormLoad;
         private string titleForFormLoad;
-
+        private MessageForm messageForm = new MessageForm();
 
         public static string ShouQuanServer = "http://193.112.91.139";
 
@@ -130,7 +130,7 @@ namespace WindowsFormsApplication4
             this.qzForFormLoad = qz;
             this.titleForFormLoad = title;
 
-
+            messageForm.Location = new Point(base.Location.X, base.Location.Y);
             /*
             //初始化当前登陆的qq
             CacheData.LoginQQ = CacheData.CoolQApi.GetLoginQQ();
@@ -644,6 +644,7 @@ namespace WindowsFormsApplication4
                         item.SubItems.Add(groupMember.Id.ToString());
                         item.SubItems.Add("QQ");
                         item.SubItems.Add(result.ToString());
+                        item.SubItems.Add(""+groupMember.GroupMemberBaseInfo.Number);
                         item.SubItems.Remove(item.SubItems[0]);
                         listView3.Items.Add(item);
                     }
@@ -2618,7 +2619,7 @@ namespace WindowsFormsApplication4
             {
                 if (listView3.CheckedItems[i].Checked)
                 {
-                    cont += CoolQCode.At(Convert.ToInt64(listView3.CheckedItems[i].SubItems[12].Text)) + " 上分失败\n余量:\n";
+                    cont += CoolQCode.At(Convert.ToInt64(listView3.CheckedItems[i].SubItems[5].Text)) + " 上分失败\n余量:\n";
                     listView3.CheckedItems[i].Remove();
                     m = listView3.CheckedItems.Count;
                     i = -1;
@@ -3742,7 +3743,18 @@ namespace WindowsFormsApplication4
         /// <param name="e"></param>
         private void button5_Click_1(object sender, EventArgs e)
         {
+            try
+            {
+                messageForm.timer.Start();
+                messageForm.Show();
+            }catch(Exception ex)
+            {
 
+            }
+            
+
+            //这里有一个bug，刷新群列表的时候会把内存中用户积分数据清掉
+            /*
             try
             {
 
@@ -3764,6 +3776,8 @@ namespace WindowsFormsApplication4
                 MessageBox.Show("未能正常获取群列表，请重新获取");
             }
             //new Thread(dgv2).Start();
+            */
+
 
         }
         /// <summary>

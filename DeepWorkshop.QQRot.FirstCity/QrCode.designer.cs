@@ -142,6 +142,7 @@
             this.label2.Size = new System.Drawing.Size(293, 12);
             this.label2.TabIndex = 34;
             this.label2.Text = "进入主界面后，当用户入群后是否自动创建积分数据：";
+            this.label2.Visible = false;
             // 
             // radioButton1
             // 
@@ -154,6 +155,7 @@
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "是";
             this.radioButton1.UseVisualStyleBackColor = true;
+            this.radioButton1.Visible = false;
             // 
             // radioButton2
             // 
@@ -164,6 +166,7 @@
             this.radioButton2.TabIndex = 36;
             this.radioButton2.Text = "否";
             this.radioButton2.UseVisualStyleBackColor = true;
+            this.radioButton2.Visible = false;
             // 
             // QrCode
             // 

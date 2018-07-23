@@ -125,31 +125,47 @@ namespace DeepWorkshop.QQRot.FirstCity
                     //MyLogUtil.ToLogFotTest("1111111：");
                     try
                     {
-                    //先查询是否已经有他的数据了
-                    GroupMemberInfoWithBocai g =  CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, target);
-                    if (g == null)//说明第一次建立此用户信息
-                    {
-                        ModelWithSourceString<GroupMemberInfo> model = Cool​Api​Extensions.GetGroupMemberInfoV2(CacheData.CoolQApi, fromGroup, target, true);
-                        //MyLogUtil.ToLogFotTest("获取的群会员信息1：" + model);
-                        //MyLogUtil.ToLogFotTest("获取的群会员信息12：" + model.Model.NickName);
-                        if (model != null)
+                        //先查询是否已经有他的数据了
+                        GroupMemberInfoWithBocai g =  CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, target);
+                        if (g == null)//说明第一次建立此用户信息
                         {
-                            GroupMemberInfo groupMemberInfo = model.Model;
-                            //MyLogUtil.ToLogFotTest("获取的群会员信息："+ groupMemberInfo.NickName);
+                            //win7下，Cool​Api​Extensions.GetGroupMemberInfoV2也会崩
+                            /*
+                            ModelWithSourceString<GroupMemberInfo> model = Cool​Api​Extensions.GetGroupMemberInfoV2(CacheData.CoolQApi, fromGroup, target, true);
+                            //MyLogUtil.ToLogFotTest("获取的群会员信息1：" + model);
+                            //MyLogUtil.ToLogFotTest("获取的群会员信息12：" + model.Model.NickName);
+                            if (model != null)
+                            {
+                                GroupMemberInfo groupMemberInfo = model.Model;
+                                //MyLogUtil.ToLogFotTest("获取的群会员信息："+ groupMemberInfo.NickName);
+                                GroupMemberInfoWithBocai temp = new GroupMemberInfoWithBocai(groupMemberInfo, CacheData.GroupMemberInfoList.Count);
+                                CacheData.GroupMemberInfoList.Add(temp);
+                                CacheData.GroupMemberInfoDic.Add(target, temp);
+
+                                //将数据展示在软件列表中，并添加数据到数据库
+
+                                    CacheData.MainFrom.dgv2(temp);
+                             }
+                            
+                            */
+                            //方案二
+                            GroupMemberInfo groupMemberInfo = new GroupMemberInfo();
+                            groupMemberInfo.NickName = "" + target;
+                            groupMemberInfo.Number = target;
+                            groupMemberInfo.GroupId = fromGroup;
+
                             GroupMemberInfoWithBocai temp = new GroupMemberInfoWithBocai(groupMemberInfo, CacheData.GroupMemberInfoList.Count);
                             CacheData.GroupMemberInfoList.Add(temp);
                             CacheData.GroupMemberInfoDic.Add(target, temp);
 
                             //将数据展示在软件列表中，并添加数据到数据库
-                            
-                                CacheData.MainFrom.dgv2(temp);
-                            }
+
+                            CacheData.MainFrom.dgv2(temp);
                         }
-                    
-                    else
-                    {
-                        MyLogUtil.ToLogFotTest("5555555555,此qq信息已经缓存：" + target);
-                    }
+                        else
+                        {
+                            MyLogUtil.ToLogFotTest("5555555555,此qq信息已经缓存：" + target);
+                        }
                     
                     }catch(Exception ex)
                     {
@@ -190,11 +206,25 @@ namespace DeepWorkshop.QQRot.FirstCity
                         if (g != null)//移除该qq会员在列表中的显示
                         {
                         
-                                MyLogUtil.ToLogFotTest("处理群员减少2,选中的用户的索引：" + g.ArrIndex+"_昵称"+ CacheData.GroupMemberInfoList[g.ArrIndex].GroupMemberBaseInfo.NickName+"_target:"+target);
-                                CacheData.GroupMemberInfoList[g.ArrIndex] = null;//由于每个成员对象中存了在当前列表中的索引（以免每次查找都要遍历列表），为了避免重建每个对象的索引，直接置为空
-                                CacheData.SearchMemberInfo.Remove(CacheData.GroupMemberInfoDic, target);
-                                CacheData.MainFrom.RefreshGroupMemberList();
-                        
+                            MyLogUtil.ToLogFotTest("处理群员减少2,选中的用户的索引：" + g.ArrIndex+"_昵称"+ CacheData.GroupMemberInfoList[g.ArrIndex].GroupMemberBaseInfo.NickName+"_target:"+target);
+                            List<GroupMemberInfoWithBocai> list = new List<GroupMemberInfoWithBocai>();
+                            for(int i = 0;i< CacheData.GroupMemberInfoList.Count; i++)
+                            {
+                                GroupMemberInfoWithBocai groupMember = CacheData.GroupMemberInfoList[i];
+                                if (groupMember.GroupMemberBaseInfo.Number != target)
+                                {
+                                    groupMember.ArrIndex = list.Count;
+                                    list.Add(groupMember);
+                                }
+                            }
+                            CacheData.GroupMemberInfoList = list;
+                            CacheData.SearchMemberInfo.Remove(CacheData.GroupMemberInfoDic, target);
+                            CacheData.MainFrom.RefreshGroupMemberList();
+                            /*
+                            CacheData.GroupMemberInfoList[g.ArrIndex] = null;//由于每个成员对象中存了在当前列表中的索引（以免每次查找都要遍历列表），为了避免重建每个对象的索引，直接置为空
+                            CacheData.SearchMemberInfo.Remove(CacheData.GroupMemberInfoDic, target);
+                            CacheData.MainFrom.RefreshGroupMemberList();
+                            */
 
                         }
                         else
