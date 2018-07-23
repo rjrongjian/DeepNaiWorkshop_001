@@ -249,7 +249,6 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.panel3 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.button4 = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.账单.SuspendLayout();
             this.封盘前.SuspendLayout();
@@ -2584,7 +2583,6 @@
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.panel1.Controls.Add(this.button4);
             this.panel1.Controls.Add(this.button13);
             this.panel1.Controls.Add(this.lvQunXiaoXi);
             this.panel1.Controls.Add(this.button9);
@@ -2651,16 +2649,6 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(1428, 699);
             this.tableLayoutPanel1.TabIndex = 41;
             this.tableLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.tableLayoutPanel1_Paint);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(33, 3);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(75, 23);
-            this.button4.TabIndex = 43;
-            this.button4.Text = "button4";
-            this.button4.UseVisualStyleBackColor = true;
-            this.button4.Click += new System.EventHandler(this.button4_Click_1);
             // 
             // Form1
             // 
@@ -2989,7 +2977,6 @@
         private System.Windows.Forms.CheckBox cbChaLiuShui;
         public System.Windows.Forms.ListView lvChengYuanJiFen;
         public System.Windows.Forms.TextBox textBox23;
-        private System.Windows.Forms.Button button4;
     }
 }
 

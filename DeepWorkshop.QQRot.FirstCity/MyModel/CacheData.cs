@@ -28,6 +28,5 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
         public static bool IsInitComplete = false;
         public static bool IsAutoAddGroupMemberJifen = false;
 
-        public static MainPlugin MainPluginForTest { get; internal set; }
     }
 }

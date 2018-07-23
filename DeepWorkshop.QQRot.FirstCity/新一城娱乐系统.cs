@@ -4046,9 +4046,5 @@ namespace WindowsFormsApplication4
             CacheData.IsInitComplete = true;
         }
 
-        private void button4_Click_1(object sender, EventArgs e)
-        {
-            CacheData.MainPluginForTest.ProcessGroupMemberDecrease(3, 3, 754745718, 0, 237476618);
-        }
     }
 }

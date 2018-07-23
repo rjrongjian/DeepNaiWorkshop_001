@@ -24,7 +24,6 @@ namespace DeepWorkshop.QQRot.FirstCity
         private static readonly object Obj = new object();
         public MainPlugin(ICoolQApi coolQApi) : base(coolQApi)
         {
-            CacheData.MainPluginForTest = this;
             try
             {
                 //这里调用的话，会报authCode错误,
