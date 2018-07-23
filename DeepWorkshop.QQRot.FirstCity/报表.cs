@@ -525,6 +525,10 @@ namespace 新一城娱乐系统
                             {
                                 foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                                 {
+                                    if (jp == null)//群员减少会将list对应的群员数据置为null
+                                    {
+                                        continue;
+                                    }
                                     if (jp.Seq == sId)
                                     {
                                         int zongjifens = MainPlugin.frmMain._group.zongjifen;

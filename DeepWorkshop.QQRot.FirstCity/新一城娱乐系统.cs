@@ -261,6 +261,10 @@ namespace WindowsFormsApplication4
 
             foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
+                if (jp == null)//群员减少会将list对应的群员数据置为null
+                {
+                    continue;
+                }
                 ListViewItem item = new ListViewItem();
                 item.Tag = jp.Seq;
                 item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
@@ -332,9 +336,10 @@ namespace WindowsFormsApplication4
             label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
             }catch(Exception ex)
             {
-                //MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
-                //MyLogUtil.ErrToLog("加载群成员列表失败，原因："+ex);
-                CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "加载群成员列表失败，原因：" + ex);
+                MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
+                MyLogUtil.ErrToLog("加载群成员列表失败，原因："+ex);
+                MessageBox.Show("刷新群列表失败");
+                //CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "加载群成员列表失败，原因：" + ex);
             }
 
             button5.Enabled = true;//在刷新列表完成的时候，允许
@@ -432,91 +437,25 @@ namespace WindowsFormsApplication4
             }
             catch (Exception ex)
             {
-                //MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
-                //MyLogUtil.ErrToLog("加载群成员列表失败，原因：" + ex);
-                CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "加载群成员列表失败，原因：" + ex);
+                MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
+                MyLogUtil.ErrToLog("加载群成员列表失败，原因：" + ex);
+                MessageBox.Show("刷新群列表失败");
+                //CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "加载群成员列表失败，原因：" + ex);
             }
 
             button5.Enabled = true;//在刷新列表完成的时候，允许
         }
 
-        /// 废弃
-        /// <summary>
-        /// 消息处理
-        /// </summary>
-        /// <param name="retcode"></param>
-        /// <param name="selector"></param>
-        /// <param name="Offline"></param>
-        private void MessageArrival(string retcode, string selector, JObject Offline)
+        public void RefreshGroupMemberList()
         {
-            
-            if (_offLine == Offline.ToString())
+            if (_dgvThread == null || _dgvThread.ThreadState != ThreadState.Running)
             {
-                return;
+                _chengYuanShuLiang = 0;
+                _dgvThread = new Thread(dgv2);
+                _dgvThread.Start();
             }
-            
-            /*
-                        _offLine = Offline.ToString();
-                        foreach (JObject msg in Offline["AddMsgList"])
-                        {
-                            //获取消息的基本参数
-                            string FromUserName = msg["FromUserName"].ToString();
-                            string ToUserName = msg["ToUserName"].ToString();
-
-                            GROUP cy = null;
-                            string Content = msg["Content"].ToString();
-                            string MsgId = msg["MsgId"].ToString();
-                            string MsgType = msg["MsgType"].ToString();
-                            if (FromUserName == _group.UserName)
-                            {
-                                string usnm = "@" + function.middlestring(Content, "@", ":<br/>");
-                                cy = getname(usnm);
-                                Content = msg["Content"].ToString().Replace(usnm + ":<br/>", "").Replace("\n", "");
-                            }
-                            if (ToUserName == _group.UserName)
-                                cy = getname(FromUserName);
-                            if (cy == null || !_jianTin)
-                                continue;
-                            //下面处理消息类型
-                            if (MsgType == "1" || MsgType == "10000")
-                            {
-                                //
-                                if (ServerCommon.isLogWechat)
-                                {
-                                    function.logWx("收到消息: " + Content);
-                                }
-
-                                //
-                                string SubMsgType = msg["SubMsgType"].ToString();
-                                //接收到好友纯文本消息
-                                if (SubMsgType == "0" || SubMsgType == "10000")
-                                {
-                                    jzxx(cy, Content, MsgId);
-                                    xxcl(Content.Trim(), cy, MsgId);
-                                    //new AddHandler(xxcl).BeginInvoke(Content.Trim(), cy, MsgId, null, null);
-                                }
-
-                            }
-                            //图片
-                            if (MsgType == "3")
-                                jzxx(cy, "[图片]", MsgId);
-                            //语音
-                            if (MsgType == "34")
-                                jzxx(cy, "[语音]", MsgId);
-                            //视频
-                            if (MsgType == "43")
-                                jzxx(cy, "[视频]", MsgId);
-                            //原创表情
-                            if (MsgType == "47")
-                                jzxx(cy, "[表情]", MsgId);
-
-
-                            //告诉服务器  我收到了消息
-                            _qrWebWeChat.huidiao(ToUserName, FromUserName);
-                        }
-                        */
-
         }
+
 
         /// <summary>
         /// 接收的群消息处理（QQ版本）
@@ -1825,6 +1764,10 @@ namespace WindowsFormsApplication4
                 int groupNum = 0;
                 foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
+                    if (jp == null)//群员减少会将list对应的群员数据置为null
+                    {
+                        continue;
+                    }
                     string xzCon = jp.conter;
                     //重新算下注下注
                     if (_feiDanJieGuoData.isSuccess == false)
@@ -2080,7 +2023,10 @@ namespace WindowsFormsApplication4
             int groupNumB = 0;
             foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
-
+                if (jp == null)//群员减少会将list对应的群员数据置为null
+                {
+                    continue;
+                }
 
                 try
                 {
@@ -2536,6 +2482,10 @@ namespace WindowsFormsApplication4
 
                 foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
+                    if (jp == null)//群员减少会将list对应的群员数据置为null
+                    {
+                        continue;
+                    }
                     MyLogUtil.ToLogFotTest("一键修改,会员seq值：" + jp.Seq + ",lvChengYuanJiFen值：" + lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text);
                     if (jp.Seq == lvChengYuanJiFen.CheckedItems[i].SubItems[9].Text)
                     {
@@ -2880,6 +2830,10 @@ namespace WindowsFormsApplication4
             int groupNum = 0;
             foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
+                if (jp == null)//群员减少会将list对应的群员数据置为null
+                {
+                    continue;
+                }
                 groupNum++;
                 //string str3 = "";
                 if (!string.IsNullOrWhiteSpace(jp.bendibeizhu))
@@ -2940,7 +2894,7 @@ namespace WindowsFormsApplication4
         /// <param name="b">酷q中gif、jpg用同一个方法，此参数作废</param>
         public void fasong(string xzmx, bool b)
         {
-            
+            /*
             if (checkBox3.Checked)//系统设置->图片模式
             {
                 Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
@@ -2961,6 +2915,7 @@ namespace WindowsFormsApplication4
                 string msgid = send(_group.GroupId, xzmx);
                 jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
+            */
             
         }
 
@@ -3352,6 +3307,10 @@ namespace WindowsFormsApplication4
             int groupNum = 0;
             foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
             {
+                if (jp == null)//群员减少会将list对应的群员数据置为null
+                {
+                    continue;
+                }
                 if (jp.conter != "")
                 {
 
@@ -3415,6 +3374,10 @@ namespace WindowsFormsApplication4
 
                 foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
                 {
+                    if (jp == null)//群员减少会将list对应的群员数据置为null
+                    {
+                        continue;
+                    }
                     if (jp.conter == "")
                     {
                         continue;
@@ -3490,8 +3453,11 @@ namespace WindowsFormsApplication4
            foreach (GroupMemberInfoWithBocai jp in CacheData.GroupMemberInfoList)
            {
 
-
-               List<KeyVal> xiaZhuData = new List<KeyVal>();
+                if (jp == null)//群员减少会将list对应的群员数据置为null
+                {
+                    continue;
+                }
+                List<KeyVal> xiaZhuData = new List<KeyVal>();
                int xiaZhuJifen = 0;//下注返还
 
                int qd = 0;
@@ -4080,6 +4046,9 @@ namespace WindowsFormsApplication4
             CacheData.IsInitComplete = true;
         }
 
-
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            CacheData.MainPluginForTest.ProcessGroupMemberDecrease(3, 3, 754745718, 0, 237476618);
+        }
     }
 }

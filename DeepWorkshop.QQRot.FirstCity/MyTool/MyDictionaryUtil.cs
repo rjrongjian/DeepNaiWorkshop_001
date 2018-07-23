@@ -24,7 +24,15 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
             {
                 return default(U);
             }
+            
 
         }
+
+        public bool Remove(Dictionary<T,U> dictionary,T key)
+        {
+            return dictionary.Remove(key);
+        }
+
+        
     }
 }

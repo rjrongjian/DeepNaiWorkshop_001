@@ -18,10 +18,13 @@ namespace DeepWorkshop.QQRot.FirstCity
    /// </summary>
     public class MainPlugin : PluginBase
     {
+        
         public static Form1 frmMain = null;//软件主窗口
         private bool IsSupportedRuntimeVersion = false;
+        private static readonly object Obj = new object();
         public MainPlugin(ICoolQApi coolQApi) : base(coolQApi)
         {
+            CacheData.MainPluginForTest = this;
             try
             {
                 //这里调用的话，会报authCode错误,
@@ -96,6 +99,7 @@ namespace DeepWorkshop.QQRot.FirstCity
             //在进入主界面容易崩溃，是不是因为软件环境还没油准备好，就去处理消息了
             if (IsSupportedRuntimeVersion&&CacheData.IsInitComplete)//只有当主界面完全加载完成，CacheData.IsInitComplete才会变为true
             {
+
                 frmMain.MessageArrival(fromGroup, fromQq, msg);
             }
             return base.ProcessGroupMessage(subType, sendTime, fromGroup, fromQq, fromAnonymous, msg, font);
@@ -114,11 +118,14 @@ namespace DeepWorkshop.QQRot.FirstCity
         public override int ProcessGroupMemberIncrease(int subType, int sendTime, long fromGroup, long fromQq, long target)
         {
             //MyLogUtil.ToLogFotTest("群员增加事件：" + fromGroup + "_fromQQ;" + target + "__"+ CacheData.IsAutoAddGroupMemberJifen+"__"+ CacheData.IsInitComplete);
-            if (CacheData.IsAutoAddGroupMemberJifen && CacheData.IsInitComplete)
+            if (CacheData.IsAutoAddGroupMemberJifen && CacheData.IsInitComplete&& fromGroup==CacheData.CurrentSelectedGroupId)
             {
-                //MyLogUtil.ToLogFotTest("1111111：");
-                try
+                lock (Obj)
                 {
+
+                    //MyLogUtil.ToLogFotTest("1111111：");
+                    try
+                    {
                     //先查询是否已经有他的数据了
                     GroupMemberInfoWithBocai g =  CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, target);
                     if (g == null)//说明第一次建立此用户信息
@@ -135,26 +142,78 @@ namespace DeepWorkshop.QQRot.FirstCity
                             CacheData.GroupMemberInfoDic.Add(target, temp);
 
                             //将数据展示在软件列表中，并添加数据到数据库
-                            CacheData.MainFrom.dgv2(temp);
-
+                            
+                                CacheData.MainFrom.dgv2(temp);
+                            }
                         }
-                    }
+                    
                     else
                     {
-                        //MyLogUtil.ToLogFotTest("5555555555,此qq信息已经缓存：" + target);
+                        MyLogUtil.ToLogFotTest("5555555555,此qq信息已经缓存：" + target);
                     }
                     
-                }catch(Exception ex)
-                {
-                    //MyLogUtil.ToLogFotTest("2222222222：" + ex);
-                    CacheData.CoolQApi.AddLog(40,CoolQLogLevel.Debug, "当群员入群后，自动添加用户时出现异常，原因"+ex);
+                    }catch(Exception ex)
+                    {
+                        MyLogUtil.ToLogFotTest("当群员入群后，自动添加用户时出现异常，原因：" + ex);
+                        //CacheData.CoolQApi.AddLog(40,CoolQLogLevel.Debug, "当群员入群后，自动添加用户时出现异常，原因："+ex);
+                    }
                 }
-
                 //MyLogUtil.ToLogFotTest("3333333：");
 
             }
 
             return base.ProcessGroupMemberIncrease(subType, sendTime, fromGroup, fromQq, target);
+        }
+
+        /// <summary>
+        /// 处理群成员数量减少事件
+        /// </summary>
+        /// <param name="subType">事件类型。1为群员离开；2为群员被踢为；3为自己(即登录号)被踢</param>
+        /// <param name="sendTime">事件发生时间的时间戳</param>
+        /// <param name="fromGroup">事件来源群号</param>
+        /// <param name="fromQq">事件来源QQ</param>
+        /// <param name="target">被操作的QQ</param>
+        /// <returns></returns>
+        public override int ProcessGroupMemberDecrease(int subType, int sendTime, long fromGroup, long fromQq, long target)
+        {
+
+            MyLogUtil.ToLogFotTest("处理群员减少"+fromGroup+"_"+fromQq+"_"+target);
+            
+            if (CacheData.IsAutoAddGroupMemberJifen && CacheData.IsInitComplete && fromGroup == CacheData.CurrentSelectedGroupId)
+            {
+                try
+                {
+                    lock (Obj)
+                    {
+                        MyLogUtil.ToLogFotTest("处理群员减少1");
+                        //先查询是否已经有他的数据了
+                        GroupMemberInfoWithBocai g = CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, target);
+                        if (g != null)//移除该qq会员在列表中的显示
+                        {
+                        
+                                MyLogUtil.ToLogFotTest("处理群员减少2,选中的用户的索引：" + g.ArrIndex+"_昵称"+ CacheData.GroupMemberInfoList[g.ArrIndex].GroupMemberBaseInfo.NickName+"_target:"+target);
+                                CacheData.GroupMemberInfoList[g.ArrIndex] = null;//由于每个成员对象中存了在当前列表中的索引（以免每次查找都要遍历列表），为了避免重建每个对象的索引，直接置为空
+                                CacheData.SearchMemberInfo.Remove(CacheData.GroupMemberInfoDic, target);
+                                CacheData.MainFrom.RefreshGroupMemberList();
+                        
+
+                        }
+                        else
+                        {
+                            MyLogUtil.ToLogFotTest("处理群员减少2");
+                        }
+                    }
+                }
+                catch(Exception ex)
+                {
+                    MyLogUtil.ToLogFotTest("当群员退群后，自动删减用户时出现异常，原因：" + ex);
+                    //CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "当群员退群后，自动删减用户时出现异常，原因" + ex);
+                }
+                
+            }
+            
+
+            return base.ProcessGroupMemberDecrease(subType, sendTime, fromGroup, fromQq, target);
         }
         /*
 

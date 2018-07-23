@@ -13,6 +13,7 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
     {
         public static ICoolQApi CoolQApi;
         public static List<GroupInfo> CurrentGroupList;//当前加载的群列表
+        public static long CurrentSelectedGroupId;//当前选中的群号
         public static int SelectedGroupIndex;//当前被选中的群的索引
         public static String Seq;//当前选中的数据库
         public static Form1 MainFrom;//主窗口，只会出现一个
@@ -26,5 +27,7 @@ namespace DeepWorkshop.QQRot.FirstCity.MyModel
         public static MyDictionaryUtil<long, GroupMemberInfoWithBocai> SearchMemberInfo = new MyDictionaryUtil<long, GroupMemberInfoWithBocai>();//用于查询群成员信息的查询器
         public static bool IsInitComplete = false;
         public static bool IsAutoAddGroupMemberJifen = false;
+
+        public static MainPlugin MainPluginForTest { get; internal set; }
     }
 }
