@@ -120,7 +120,6 @@
     <Compile Include="MyTool\MyDateUtil.cs" />
     <Compile Include="MyTool\MyFileUtil.cs" />
     <Compile Include="MyTool\MyLogUtil.cs" />
-    <Compile Include="MyTool\MyMemoryUtil.cs" />
     <Compile Include="MyTool\MyMessageUtil.cs" />
     <Compile Include="MyTool\MyRegexUtil.cs" />
     <Compile Include="MyTool\MySystemUtil.cs" />

@@ -46,7 +46,7 @@ namespace DeepWorkshop.QQRot.FirstCity.MyTool
              * | .NET Framework 4.5.2 installed on all other Windows OS versions | 379893                     |
              * +-----------------------------------------------------------------+----------------------------+
              */
-            const int minSupportedRelease = 394802;
+            const int minSupportedRelease = 379893;
 
             const string subkey = @"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\";
             using (var ndpKey = OpenRegKey(subkey, false, RegistryHive.LocalMachine))

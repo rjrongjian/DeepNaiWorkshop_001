@@ -2350,7 +2350,6 @@ namespace WindowsFormsApplication4
             feiPanFanHuan();
 
 
-            MyMemoryUtil.ClearMemory();//释放内存
             return zjxx + "||||||" + strzd;
             
         }
@@ -3695,7 +3694,6 @@ namespace WindowsFormsApplication4
                 MyLogUtil.ErrToLog("刷新群列表出现异常，原因："+ ex);
                 MessageBox.Show("未能正常获取群列表，请重新获取");
             }
-            MyMemoryUtil.ClearMemory();//释放内存
             //new Thread(dgv2).Start();
 
         }

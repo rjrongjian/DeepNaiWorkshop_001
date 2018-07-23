@@ -103,7 +103,6 @@ namespace AI
                 CacheData.MainFrom = qr;
                 qr.Show();
                 Hide();
-                MyMemoryUtil.ClearMemory();//释放内存
             }catch(Exception ex)
             {
                 CacheData.CoolQApi.AddLog(40, Newbe.CQP.Framework.CoolQLogLevel.Debug, "qrCode类中button3_Click方法出错，异常信息："+ex);

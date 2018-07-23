@@ -34,7 +34,7 @@ namespace DeepWorkshop.QQRot.FirstCity
                 {
                     IsSupportedRuntimeVersion = false;
 
-
+                    new RuntimeVerForm().Show();
 
                     return;
                 }
