@@ -1,6 +1,7 @@
 ﻿using DeepWorkshop.QQRot.FirstCity.MyModel;
 using DeepWorkshop.QQRot.FirstCity.MyTool;
 using Newbe.CQP.Framework;
+using Newbe.CQP.Framework.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -98,6 +99,62 @@ namespace DeepWorkshop.QQRot.FirstCity
                 frmMain.MessageArrival(fromGroup, fromQq, msg);
             }
             return base.ProcessGroupMessage(subType, sendTime, fromGroup, fromQq, fromAnonymous, msg, font);
+        }
+
+
+        /// <summary>
+        /// 处理群成员添加事件
+        /// </summary>
+        /// <param name="subType">事件类型。1为管理员已同意；2为管理员邀请</param>
+        /// <param name="sendTime">事件发生时间的时间戳</param>
+        /// <param name="fromGroup">事件来源群号</param>
+        /// <param name="fromQq">事件来源QQ</param>
+        /// <param name="target">被操作的QQ</param>
+        /// <returns></returns>
+        public override int ProcessGroupMemberIncrease(int subType, int sendTime, long fromGroup, long fromQq, long target)
+        {
+            //MyLogUtil.ToLogFotTest("群员增加事件：" + fromGroup + "_fromQQ;" + target + "__"+ CacheData.IsAutoAddGroupMemberJifen+"__"+ CacheData.IsInitComplete);
+            if (CacheData.IsAutoAddGroupMemberJifen && CacheData.IsInitComplete)
+            {
+                //MyLogUtil.ToLogFotTest("1111111：");
+                try
+                {
+                    //先查询是否已经有他的数据了
+                    GroupMemberInfoWithBocai g =  CacheData.SearchMemberInfo.GetValue(CacheData.GroupMemberInfoDic, target);
+                    if (g == null)//说明第一次建立此用户信息
+                    {
+                        ModelWithSourceString<GroupMemberInfo> model = Cool​Api​Extensions.GetGroupMemberInfoV2(CacheData.CoolQApi, fromGroup, target, true);
+                        //MyLogUtil.ToLogFotTest("获取的群会员信息1：" + model);
+                        //MyLogUtil.ToLogFotTest("获取的群会员信息12：" + model.Model.NickName);
+                        if (model != null)
+                        {
+                            GroupMemberInfo groupMemberInfo = model.Model;
+                            //MyLogUtil.ToLogFotTest("获取的群会员信息："+ groupMemberInfo.NickName);
+                            GroupMemberInfoWithBocai temp = new GroupMemberInfoWithBocai(groupMemberInfo, CacheData.GroupMemberInfoList.Count);
+                            CacheData.GroupMemberInfoList.Add(temp);
+                            CacheData.GroupMemberInfoDic.Add(target, temp);
+
+                            //将数据展示在软件列表中，并添加数据到数据库
+                            CacheData.MainFrom.dgv2(temp);
+
+                        }
+                    }
+                    else
+                    {
+                        //MyLogUtil.ToLogFotTest("5555555555,此qq信息已经缓存：" + target);
+                    }
+                    
+                }catch(Exception ex)
+                {
+                    //MyLogUtil.ToLogFotTest("2222222222：" + ex);
+                    CacheData.CoolQApi.AddLog(40,CoolQLogLevel.Debug, "当群员入群后，自动添加用户时出现异常，原因"+ex);
+                }
+
+                //MyLogUtil.ToLogFotTest("3333333：");
+
+            }
+
+            return base.ProcessGroupMemberIncrease(subType, sendTime, fromGroup, fromQq, target);
         }
         /*
 

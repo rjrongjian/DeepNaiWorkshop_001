@@ -80,6 +80,12 @@ namespace AI
         {
             try
             {
+                if (radioButton1.Checked)
+                {
+                    CacheData.IsAutoAddGroupMemberJifen = true;
+                }
+                
+
                 if (comboBox1.Text == "" || comboBox2.Text == "")
                 {
                     MessageBox.Show("请选择qq群和数据库！");
@@ -199,6 +205,16 @@ namespace AI
             }
         }
 
-       
+        private void button4_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                CacheData.CoolQApi.AddLog(40, Newbe.CQP.Framework.CoolQLogLevel.Debug, "测试");
+            }catch(Exception ex)
+            {
+                MessageBox.Show("能捕获这个异常么");
+            }
+            
+        }
     }
 }

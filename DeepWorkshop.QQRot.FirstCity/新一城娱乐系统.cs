@@ -332,8 +332,109 @@ namespace WindowsFormsApplication4
             label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
             }catch(Exception ex)
             {
-                MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
-                MyLogUtil.ErrToLog("加载群成员列表失败，原因："+ex);
+                //MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
+                //MyLogUtil.ErrToLog("加载群成员列表失败，原因："+ex);
+                CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "加载群成员列表失败，原因：" + ex);
+            }
+
+            button5.Enabled = true;//在刷新列表完成的时候，允许
+        }
+        /// <summary>
+        /// 同步单个群员的信息到软件
+        /// </summary>
+        public void dgv2(GroupMemberInfoWithBocai groupMemberInfo)
+        {
+            button5.Enabled = false;//在刷新列表的时候，禁止刷新按钮可用
+            try
+            {
+
+                if (_group == null) return;
+                DataTable dt = SQL.SELECTdata("", " Friends_" + CacheData.Seq);
+                //2017-05-04 08:45:40
+                DateTime time1 = DateTime.Now.Date;
+                DateTime time2 = time1.AddDays(1);
+                DataTable deset = SQLiteHelper.ExecuteDataTable("select seq,sum(盈亏)  from NameInt_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "' group by seq", null);
+
+                List<GroupMemberInfoWithBocai> listTemp = new List<GroupMemberInfoWithBocai>();
+                listTemp.Add(groupMemberInfo);
+
+                foreach (GroupMemberInfoWithBocai jp in listTemp)
+                {
+                    ListViewItem item = new ListViewItem();
+                    item.Tag = jp.Seq;
+                    item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+                    DataRow[] dR = dt.Select("seq='" + jp.Seq + "'");
+                    DataRow dr = dt.NewRow();
+                    if (dR.Length == 0)
+                    {
+                        string nickname = jp.GroupMemberBaseInfo.NickName.Replace(",", "").Replace("/", "");
+                        //注意昵称中包含很多特殊字符，这里昵称中的非汉字字符下划线过滤掉以便存储到数据库
+                        SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.Seq + "','" + MyRegexUtil.RemoveSpecialCharacters(nickname) + "','否','0','0','0'", " Friends_" + CacheData.Seq);
+
+                        dr[4] = "否";
+                        dr[5] = "0";
+                        dr[6] = "0";
+                        // dr = SQL.SELECTdata(" WHERE seq='" + jp.seq + "'", 1, _group.seq).Rows[0];
+                    }
+                    else
+                    {
+                        dr = dR[0];
+                    }
+                    MyLogUtil.ToLogFotTest("查看此用户：" + jp.GroupMemberBaseInfo.Number + "的数据库存储的备注" + dr["本地备注"].ToString());
+                    try
+                    {
+                        item.SubItems.Add(dr["本地备注"].ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        MyLogUtil.ToLogFotTest("看看本地备注名称" + jp.RemarkName);
+                        item.SubItems.Add(jp.RemarkName);//备注
+                    }
+                    item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+
+                    item.SubItems.Add(dr[3].ToString());//推荐人
+                    item.SubItems.Add(dr[4].ToString());//是否入局
+                    if (dr[4].ToString() == "是")
+                        jp.sfrj = true;
+
+                    jp.bendibeizhu = dr["本地备注"].ToString();
+
+                    item.SubItems.Add(dr[5].ToString());//积分
+                    jp.zongjifen = int.Parse(dr[5].ToString());
+
+                    _zongJiFen = _zongJiFen + int.Parse(dr[5].ToString());
+                    item.SubItems.Add(dr[6].ToString());//总战绩
+                    try//今日战绩
+                    {
+                        jp.zongxiazhu = int.Parse(dr[7].ToString());
+                    }
+                    catch (Exception ex) { jp.zongxiazhu = 0; }
+
+                    try//今日战绩
+                    {
+                        item.SubItems.Add(deset.Select("seq='" + jp.Seq + "'")[0][1].ToString());
+                    }
+                    catch (Exception ex) { item.SubItems.Add("0"); }
+
+                    item.SubItems.Add("");//本期下注
+                    item.SubItems.Add(jp.Seq);
+                    item.SubItems.Add(_chengYuanShuLiang.ToString());
+                    item.SubItems.Add("" + jp.GroupMemberBaseInfo.Number);//多加一个字段，代表此会员的qq号 index=11
+
+                    item.SubItems.Remove(item.SubItems[0]);
+                    //if (jp.UserName == _qrWebWeChat.UserName)
+                    //   continue;
+                    lvChengYuanJiFen.Items.Add(item);
+                    jp.Id = _chengYuanShuLiang;
+                    _chengYuanShuLiang++;
+                }
+                label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
+            }
+            catch (Exception ex)
+            {
+                //MessageBox.Show("加载群成员列表失败，原因：" + ex.Message);//待删
+                //MyLogUtil.ErrToLog("加载群成员列表失败，原因：" + ex);
+                CacheData.CoolQApi.AddLog(40, CoolQLogLevel.Debug, "加载群成员列表失败，原因：" + ex);
             }
 
             button5.Enabled = true;//在刷新列表完成的时候，允许
@@ -2839,6 +2940,7 @@ namespace WindowsFormsApplication4
         /// <param name="b">酷q中gif、jpg用同一个方法，此参数作废</param>
         public void fasong(string xzmx, bool b)
         {
+            /*
             if (checkBox3.Checked)//系统设置->图片模式
             {
                 Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
@@ -2859,6 +2961,7 @@ namespace WindowsFormsApplication4
                 string msgid = send(_group.GroupId, xzmx);
                 jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
+            */
         }
 
         /// <summary>
@@ -3976,5 +4079,7 @@ namespace WindowsFormsApplication4
             MainPlugin.frmMain = this;
             CacheData.IsInitComplete = true;
         }
+
+
     }
 }
