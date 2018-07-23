@@ -2940,7 +2940,7 @@ namespace WindowsFormsApplication4
         /// <param name="b">酷q中gif、jpg用同一个方法，此参数作废</param>
         public void fasong(string xzmx, bool b)
         {
-            /*
+            
             if (checkBox3.Checked)//系统设置->图片模式
             {
                 Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
@@ -2961,7 +2961,7 @@ namespace WindowsFormsApplication4
                 string msgid = send(_group.GroupId, xzmx);
                 jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
-            */
+            
         }
 
         /// <summary>
