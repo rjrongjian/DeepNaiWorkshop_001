@@ -21,7 +21,7 @@ namespace 新一城娱乐系统
             zse = zseq;
             InitializeComponent();
             linshi = gr;
-            label1.Text = "昵称：" + gr.GroupMemberBaseInfo.NickName;
+            label1.Text = "昵称：" + gr.GetNickName();
             label2.Text = "备注：" + gr.RemarkName;
             label3.Text = "总下注：" + gr.zongxiazhu.ToString();
             label4.Text = "总盈亏：" + gr.zongyingkui.ToString();

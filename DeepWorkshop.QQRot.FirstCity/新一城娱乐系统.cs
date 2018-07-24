@@ -267,12 +267,12 @@ namespace WindowsFormsApplication4
                 }
                 ListViewItem item = new ListViewItem();
                 item.Tag = jp.Seq;
-                item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+                item.SubItems.Add(jp.GetNickName());
                 DataRow[] dR = dt.Select("seq='" + jp.Seq + "'");
                 DataRow dr = dt.NewRow();
                 if (dR.Length == 0)
                 {
-                    string nickname = jp.GroupMemberBaseInfo.NickName.Replace(",", "").Replace("/", "");
+                    string nickname = jp.GetNickName().Replace(",", "").Replace("/", "");
                     //注意昵称中包含很多特殊字符，这里昵称中的非汉字字符下划线过滤掉以便存储到数据库
                     SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.Seq + "','" + MyRegexUtil.RemoveSpecialCharacters(nickname) + "','否','0','0','0'", " Friends_" + CacheData.Seq);
 
@@ -295,7 +295,7 @@ namespace WindowsFormsApplication4
                     MyLogUtil.ToLogFotTest("看看本地备注名称"+ jp.RemarkName);
                     item.SubItems.Add(jp.RemarkName);//备注
                 }
-                item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+                item.SubItems.Add(jp.GetNickName());
 
                 item.SubItems.Add(dr[3].ToString());//推荐人
                 item.SubItems.Add(dr[4].ToString());//是否入局
@@ -367,12 +367,12 @@ namespace WindowsFormsApplication4
                 {
                     ListViewItem item = new ListViewItem();
                     item.Tag = jp.Seq;
-                    item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+                    item.SubItems.Add(jp.GetNickName());
                     DataRow[] dR = dt.Select("seq='" + jp.Seq + "'");
                     DataRow dr = dt.NewRow();
                     if (dR.Length == 0)
                     {
-                        string nickname = jp.GroupMemberBaseInfo.NickName.Replace(",", "").Replace("/", "");
+                        string nickname = jp.GetNickName().Replace(",", "").Replace("/", "");
                         //注意昵称中包含很多特殊字符，这里昵称中的非汉字字符下划线过滤掉以便存储到数据库
                         SQL.INSERT("seq,NickName,是否入局,现有积分,总盈亏,总下注", "'" + jp.Seq + "','" + MyRegexUtil.RemoveSpecialCharacters(nickname) + "','否','0','0','0'", " Friends_" + CacheData.Seq);
 
@@ -395,7 +395,7 @@ namespace WindowsFormsApplication4
                         MyLogUtil.ToLogFotTest("看看本地备注名称" + jp.RemarkName);
                         item.SubItems.Add(jp.RemarkName);//备注
                     }
-                    item.SubItems.Add(jp.GroupMemberBaseInfo.NickName);
+                    item.SubItems.Add(jp.GetNickName());
 
                     item.SubItems.Add(dr[3].ToString());//推荐人
                     item.SubItems.Add(dr[4].ToString());//是否入局
@@ -639,12 +639,12 @@ namespace WindowsFormsApplication4
                     if (result != 0)
                     {
                         ListViewItem item = new ListViewItem();
-                        item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);
+                        item.SubItems.Add(groupMember.GetNickName());
                         item.SubItems.Add(groupMember.RemarkName);
                         item.SubItems.Add(groupMember.Id.ToString());
                         item.SubItems.Add("QQ");
                         item.SubItems.Add(result.ToString());
-                        item.SubItems.Add(""+groupMember.GroupMemberBaseInfo.Number);
+                        item.SubItems.Add(""+groupMember.GetNickName());
                         item.SubItems.Remove(item.SubItems[0]);
                         listView3.Items.Add(item);
                     }
@@ -665,7 +665,7 @@ namespace WindowsFormsApplication4
                 if (groupMember.zongjifen > 0)
                 {
                     ListViewItem item = new ListViewItem();
-                    item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);
+                    item.SubItems.Add(groupMember.GetNickName());
                     item.SubItems.Add(groupMember.RemarkName);
                     item.SubItems.Add(groupMember.Id.ToString());
                     item.SubItems.Add("QQ");
@@ -704,7 +704,7 @@ namespace WindowsFormsApplication4
                             return;
                         }
                         ListViewItem item = new ListViewItem();
-                        item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);
+                        item.SubItems.Add(groupMember.GetNickName());
                         item.SubItems.Add(groupMember.RemarkName);
                         item.SubItems.Add(groupMember.Id.ToString());
                         item.SubItems.Add("QQ");
@@ -1285,7 +1285,7 @@ namespace WindowsFormsApplication4
                     lvChengYuanJiFen.Items[groupMember.Id].SubItems[8].Text = groupMember.conter;
                     lvChengYuanJiFen.Items[groupMember.Id].SubItems[5].Text = groupMember.zongjifen.ToString();
                     SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                                "'" + groupMember.GroupMemberBaseInfo.NickName + "','"
+                                "'" + groupMember.GetNickName() + "','"
                                 + groupMember.Seq + "','"
                                 + _kaiJiangData.qihao
                                 + "','下注','"
@@ -1398,7 +1398,7 @@ namespace WindowsFormsApplication4
             else
             {
                 ListViewItem item = new ListViewItem();
-                item.SubItems.Add(groupMember.GroupMemberBaseInfo.NickName);//昵称
+                item.SubItems.Add(groupMember.GetNickName());//昵称
                 item.SubItems.Add(groupMember.bendibeizhu);//备注 原先为groupMember.RemarkName
                 item.SubItems.Add(Content);//发送的群信息
                 item.SubItems.Add(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
@@ -1409,7 +1409,7 @@ namespace WindowsFormsApplication4
                 List<KeyVal> zcs = new List<KeyVal>();//保存聊天记录
                 KeyVal zcs1 = new KeyVal("seq", groupMember.Seq);
                 zcs.Add(zcs1);
-                KeyVal zcs2 = new KeyVal("昵称", groupMember.GroupMemberBaseInfo.NickName);//群名
+                KeyVal zcs2 = new KeyVal("昵称", groupMember.GetNickName());//群名
                 zcs.Add(zcs2);
                 KeyVal zcs3 = new KeyVal("内容", Content);
                 zcs.Add(zcs3);
@@ -2238,7 +2238,7 @@ namespace WindowsFormsApplication4
                     }
                     catch (Exception ex)
                     {
-                        log(jp.GroupMemberBaseInfo.NickName + "赔率未设置，结算失败");
+                        log(jp.GetNickName() + "赔率未设置，结算失败");
                     }
                     jp.benqiyingkui = (int)zjjf - jp.benqixiazhu;
                     jp.zongyingkui += jp.benqiyingkui;
@@ -2267,7 +2267,7 @@ namespace WindowsFormsApplication4
 
                         //增加成员数据
                         SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                            "'" + jp.GroupMemberBaseInfo.NickName + "','"
+                            "'" + jp.GetNickName() + "','"
                             + jp.Seq + "','"
                             + _kaiJiangData.qihao
                             + "','奖金','"
@@ -2283,7 +2283,7 @@ namespace WindowsFormsApplication4
 
                     //成功下注
                     SQL.INSERT("NickName,seq,期号,类型,实际下注,实际中奖,实际下注文本,备注",
-                            "'" + jp.GroupMemberBaseInfo.NickName + "','"
+                            "'" + jp.GetNickName() + "','"
                             + jp.Seq + "','"
                             + _kaiJiangData.qihao + "','','"
                             + zj_xiazhu.ToString() + "','"
@@ -2293,7 +2293,7 @@ namespace WindowsFormsApplication4
 
                     KeyVal seq = new KeyVal("seq", jp.Seq);
                     xiaZhuData.Add(seq);
-                    KeyVal NN = new KeyVal("NickName", jp.GroupMemberBaseInfo.NickName);
+                    KeyVal NN = new KeyVal("NickName", jp.GetNickName());
                     xiaZhuData.Add(NN);
                     KeyVal qh = new KeyVal("期号", _kaiJiangData.qihao);
                     xiaZhuData.Add(qh);
@@ -2344,7 +2344,7 @@ namespace WindowsFormsApplication4
 
                     MyValidate.T();
 
-                    log(jp.GroupMemberBaseInfo.NickName + "清空下注数据，更新总积分");
+                    log(jp.GetNickName() + "清空下注数据，更新总积分");
 
                     lvChengYuanJiFen.Items[jp.Id].SubItems[8].Text = "";//本期下注
                     lvChengYuanJiFen.Items[jp.Id].SubItems[6].Text = jp.zongyingkui.ToString();//总积分
@@ -2360,7 +2360,7 @@ namespace WindowsFormsApplication4
                 }
                 catch (Exception ex)
                 {
-                    log(jp.GroupMemberBaseInfo.NickName + "玩家结算失败");
+                    log(jp.GetNickName() + "玩家结算失败");
                 }
             }
 
@@ -2895,7 +2895,6 @@ namespace WindowsFormsApplication4
         /// <param name="b">酷q中gif、jpg用同一个方法，此参数作废</param>
         public void fasong(string xzmx, bool b)
         {
-            
             if (checkBox3.Checked)//系统设置->图片模式
             {
                 Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
@@ -2916,7 +2915,6 @@ namespace WindowsFormsApplication4
                 string msgid = send(_group.GroupId, xzmx);
                 jzxx(_group,CacheData.LoginQQ, xzmx, msgid);
             }
-            
             
         }
 
@@ -3625,7 +3623,7 @@ namespace WindowsFormsApplication4
                }
                catch (Exception ex)
                {
-                   log(jp.GroupMemberBaseInfo.NickName + "赔率未设置，结算失败");
+                   log(jp.GetNickName() + "赔率未设置，结算失败");
                }
                if (xiaZhuJifen > 0)
                {
@@ -3644,14 +3642,14 @@ namespace WindowsFormsApplication4
 
                        //增加成员数据
                        SQL.INSERT("NickName,seq,期号,类型,积分,剩余积分,备注",
-                           "'" + jp.GroupMemberBaseInfo.NickName + "','" + jp.Seq + "','" + _shangQiKaiJiangData.qihao + "','飞盘失败返还','" + benqiyingkui.ToString() + "','" + jp.zongjifen + "',''",
+                           "'" + jp.GetNickName() + "','" + jp.Seq + "','" + _shangQiKaiJiangData.qihao + "','飞盘失败返还','" + benqiyingkui.ToString() + "','" + jp.zongjifen + "',''",
                            " liushui_" + CacheData.Seq);
                        label1.Text = "成员数量：" + _chengYuanShuLiang.ToString() + "    总积分： " + _zongJiFen.ToString();
                    }
 
                    KeyVal seq = new KeyVal("seq", jp.Seq);
                    xiaZhuData.Add(seq);
-                   KeyVal NN = new KeyVal("NickName", jp.GroupMemberBaseInfo.NickName);
+                   KeyVal NN = new KeyVal("NickName", jp.GetNickName());
                    xiaZhuData.Add(NN);
                    KeyVal qh = new KeyVal("期号", _shangQiKaiJiangData.qihao);
                    xiaZhuData.Add(qh);
@@ -3707,7 +3705,7 @@ namespace WindowsFormsApplication4
                { }
                catch (Exception ex)
                {
-                   log(jp.GroupMemberBaseInfo.NickName + "玩家返还结算失败");
+                   log(jp.GetNickName() + "玩家返还结算失败");
                }
 
                #endregion

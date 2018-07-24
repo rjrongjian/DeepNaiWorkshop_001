@@ -2,6 +2,7 @@
 using Dal;
 using DeepWorkshop.QQRot.FirstCity;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
+using DeepWorkshop.QQRot.FirstCity.MyTool;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -30,8 +31,8 @@ namespace 新一城娱乐系统
         /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
-            string sj1 = 玩家日期始.Value.ToString("yyyy-MM-dd HH:mm:ss");
-            string sj2 = 玩家日期末.Value.ToString("yyyy-MM-dd HH:mm:ss");
+            string sj1 = 玩家日期始.Value.ToString("yyyy-MM-dd") + " 00:00:00";
+            string sj2 = 玩家日期末.Value.ToString("yyyy-MM-dd") + " 23:59:59";
             string str = "select * from Friends_" + seq;
             if (textBox1.Text != "")
                 str += " where NickName like '%" + textBox1.Text + "%'";
@@ -98,9 +99,10 @@ namespace 新一城娱乐系统
         /// <param name="e"></param>
         private void button4_Click(object sender, EventArgs e)
         {
-            string sj1 = dateTimePicker1.Value.ToString("yyyy-MM-dd HH:mm:ss");
-            string sj2 = dateTimePicker2.Value.ToString("yyyy-MM-dd HH:mm:ss");
+            string sj1 = dateTimePicker1.Value.ToString("yyyy-MM-dd")+" 00:00:00";
+            string sj2 = dateTimePicker2.Value.ToString("yyyy-MM-dd")+" 23:59:59";
             string str = "select * from kaijiang_" + seq + " where Time BETWEEN '" + sj1 + "' AND '" + sj2 + "'";
+            //MyLogUtil.ToLogFotTest("看看生成的sql语句："+str);
             listView1.Items.Clear();
             DataTable deset = SQLiteHelper.ExecuteDataTable(str, null);
             foreach (DataRow dr in deset.Rows)
@@ -144,8 +146,8 @@ namespace 新一城娱乐系统
         /// <param name="e"></param>
         private void button10_Click(object sender, EventArgs e)
         {
-            string sj1 = dateTimePicker3.Value.ToString("yyyy-MM-dd HH:mm:ss");
-            string sj2 = dateTimePicker4.Value.ToString("yyyy-MM-dd HH:mm:ss");
+            string sj1 = dateTimePicker6.Value.ToString("yyyy-MM-dd") + " 00:00:00";
+            string sj2 = dateTimePicker7.Value.ToString("yyyy-MM-dd") + " 23:59:59";
             string str = "select * from liushui_" + seq + " where Time BETWEEN '" + sj1 + "' AND '" + sj2 + "' ";
             if (comboBox1.Text != "全部")
             {
@@ -185,8 +187,8 @@ namespace 新一城娱乐系统
         /// <param name="e"></param>
         private void button12_Click(object sender, EventArgs e)
         {
-            string sj1 = dateTimePicker5.Value.ToString("yyyy-MM-dd HH:mm:ss");
-            string sj2 = dateTimePicker8.Value.ToString("yyyy-MM-dd HH:mm:ss");
+            string sj1 = dateTimePicker6.Value.ToString("yyyy-MM-dd") + " 00:00:00";
+            string sj2 = dateTimePicker7.Value.ToString("yyyy-MM-dd") + " 23:59:59";
             string str = "select * from liaotian_" + seq + " where Time BETWEEN '" + sj1 + "' AND '" + sj2 + "' ";
             if (textBox4.Text != "")
             {
@@ -315,8 +317,9 @@ namespace 新一城娱乐系统
             }
             //===================2018-02-08===================
 
-            string sj1 = dateTimePicker6.Value.ToString("yyyy-MM-dd HH:mm:ss");
-            string sj2 = dateTimePicker7.Value.ToString("yyyy-MM-dd HH:mm:ss");
+            string sj1 = dateTimePicker6.Value.ToString("yyyy-MM-dd") + " 00:00:00";
+            string sj2 = dateTimePicker7.Value.ToString("yyyy-MM-dd") + " 23:59:59";
+
             string str = "select * from NameInt_" + seq + " where Time BETWEEN '" + sj1 + "' AND '" + sj2 + "' group by seq";
             DataTable deset = SQLiteHelper.ExecuteDataTable(str, null);
             int q = 0;

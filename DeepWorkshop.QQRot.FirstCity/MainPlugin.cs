@@ -155,6 +155,7 @@ namespace DeepWorkshop.QQRot.FirstCity
                             groupMemberInfo.GroupId = fromGroup;
 
                             GroupMemberInfoWithBocai temp = new GroupMemberInfoWithBocai(groupMemberInfo, CacheData.GroupMemberInfoList.Count);
+                            temp.IsAutoAddGroupMember = true;
                             CacheData.GroupMemberInfoList.Add(temp);
                             CacheData.GroupMemberInfoDic.Add(target, temp);
 
