@@ -5,7 +5,6 @@ using Dal;
 using DeepWorkshop.QQRot.FirstCity;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
 using DeepWorkshop.QQRot.FirstCity.MyTool;
-using DeepWorkshop.QQRot.FirstCity.Validate;
 using Newbe.CQP.Framework;
 using Newtonsoft.Json.Linq;
 using System;
@@ -2248,7 +2247,6 @@ namespace WindowsFormsApplication4
 
                     #endregion
 
-                    MyValidate.T();
 
                     log(jp.GetNickName() + "清空下注数据，更新总积分");
 

@@ -3,7 +3,6 @@ using AI.Bll;
 using AI.Dal;
 using Bll;
 using DeepWorkshop.QQRot.FirstCity.MyModel;
-using DeepWorkshop.QQRot.FirstCity.Validate;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,7 +60,6 @@ namespace 新一城娱乐系统
                 string expire = function.middlestring(s, "Expire\":\"", "\"");
                 DateTime dtExpire = new DateTime();
                 DateTime.TryParse(expire, out dtExpire);
-                MyValidate.T();
                 新一城娱乐系统.FeiPan.ServerCommon.serverExpire = dtExpire;
                 //
                 //MessageBox.Show("登录成功，本软件仅供娱乐，禁止用于赌博，否则后果自负。");
