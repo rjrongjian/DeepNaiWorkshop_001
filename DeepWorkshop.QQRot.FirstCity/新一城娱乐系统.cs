@@ -445,6 +445,7 @@ namespace WindowsFormsApplication4
             }
             if (conter == "查")
             {
+
                 if (!groupMember.sfrj)
                 {
                     string st = CoolQCode.At(fromQQ);//酷q中@某人
@@ -519,6 +520,10 @@ namespace WindowsFormsApplication4
             }
             if (conter.IndexOf("查") == 0 || conter.IndexOf("上") == 0)
             {
+                if (conter.IndexOf("查") == 0)
+                {
+                    playPointSound();
+                }
                 if (!groupMember.sfrj)
                 {
                     string st = CoolQCode.At(fromQQ);//酷q中@某人
@@ -2089,12 +2094,14 @@ namespace WindowsFormsApplication4
 
                     if (strXiaZhuWenBen != "")
                     {
-                        strzd += jp.NickNameShort + "  " + strXiaZhuWenBen + "  ";
+                        strzd += jp.NickNameShort + "  " + strXiaZhuWenBen + "\n";
+                        /*
                         groupNum++;
                         if (groupNum % 2 == 0)
                         {
                             strzd += "\n";
                         }
+                        */
                     }
 
                     //开奖后积分
@@ -2148,17 +2155,19 @@ namespace WindowsFormsApplication4
 
                         if (_feiDanJieGuoData.isSuccess)
                         {
-                            zjxx += jp.NickNameShort + "  +" + zjjf.ToString().PadLeft(5, '0') + "积分  ";
+                            zjxx += jp.NickNameShort + "  +" + zjjf.ToString().PadLeft(5, '0') + "积分\n";
                         }
                         else
                         {
-                            zjxx += jp.NickNameShort + "  +" + zj_zjjf.ToString().PadLeft(5, '0') + "积分  ";
+                            zjxx += jp.NickNameShort + "  +" + zj_zjjf.ToString().PadLeft(5, '0') + "积分\n";
                         }
+                        /*
                         groupNumB++;
                         if (groupNumB % 2 == 0)
                         {
                             zjxx += "\n";
                         }
+                        */
                         jp.zongjifen += (int)zjjf;
 
                         //增加成员数据
@@ -2746,8 +2755,9 @@ namespace WindowsFormsApplication4
                 {
                     //byte[] bytes = _encoding.GetBytes(str2);
                     zd += jp.NickNameShort;
-                    zd += ":" + jp.conter + jp.zongjifen;
+                    zd += ":" + jp.conter + jp.zongjifen+"\n";
                 }
+                /*
                 if (groupNum % 2 == 0)
                 {
                     zd += "\n";
@@ -2756,6 +2766,7 @@ namespace WindowsFormsApplication4
                 {
                     zd += "\n";
                 }
+                */
             }
             
             return zd;
@@ -3213,12 +3224,14 @@ namespace WindowsFormsApplication4
                 if (jp.conter != "")
                 {
 
-                    xzmx += jp.NickNameShort + ":" + jp.conter + "  ";
+                    xzmx += jp.NickNameShort + ":" + jp.conter + "\n";
+                    /*
                     groupNum++;
                     if (groupNum % 2 == 0)
                     {
                         xzmx += "\n";
                     }
+                    */
                 }
             }
             xzmx = textBox17.Text.Replace("{下注明细}", xzmx).Replace("{期号}", _kaiJiangData.qihao);
