@@ -131,113 +131,7 @@ namespace WindowsFormsApplication4
             this.titleForFormLoad = title;
 
             messageForm.Location = new Point(base.Location.X, base.Location.Y);
-            /*
-            //初始化当前登陆的qq
-            CacheData.LoginQQ = CacheData.CoolQApi.GetLoginQQ();
-            CacheData.LoginNick = CacheData.CoolQApi.GetLoginNick();
-            MyLogUtil.ToLogFotTest(CacheData.LoginQQ + "_" + CacheData.LoginNick);
-            try
-            {
-                if (ConfigHelper.GetAppConfig("qd") != null)
-                {
-                    textBox29.Text = ConfigHelper.GetAppConfig("qd");
-                    textBox30.Text = ConfigHelper.GetAppConfig("dq");
-                    textBox31.Text = ConfigHelper.GetAppConfig("zh");
-                    textBox32.Text = ConfigHelper.GetAppConfig("zhzh");
-                    textBox33.Text = ConfigHelper.GetAppConfig("lhh");
-
-                    checkBox4.Checked = ConfigHelper.GetAppConfig("账单zd").Equals("1");
-                    checkBox5.Checked = ConfigHelper.GetAppConfig("封盘前zd").Equals("1");
-                    checkBox6.Checked = ConfigHelper.GetAppConfig("封盘zd").Equals("1");
-                    checkBox7.Checked = ConfigHelper.GetAppConfig("开奖zd").Equals("1");
-                    checkBox8.Checked = ConfigHelper.GetAppConfig("下注zd").Equals("1");
-                }
-            }
-            catch (Exception ex) { }
-            foreach (lsxe ox in _guiZe.cshxe)
-            {
-                ListViewItem item = new ListViewItem();
-                item.SubItems.Add(ox.name);
-                item.SubItems.Add(ox.gz);
-                item.SubItems.Add(ox.xe.ToString());
-                item.SubItems.Add(ox.id.ToString());
-                item.SubItems.Remove(item.SubItems[0]);
-                listView5.Items.Add(item);
-            }
-            this.Text = title;
-            label8.Text = "当前操作群：" + qz.GroupName;
-            _group = qz;
-            //_qrWebWeChat = webchat;
-            Control.CheckForIllegalCrossThreadCalls = false;
-
-            //此方法已做适配，见MessageArrival(long fromGroup, long fromQq, string msg)
-            //_qrWebWeChat.job += new WebWeChat.JObjectEventHandler(MessageArrival);
-
-            状态栏.Text = "单击启动监听开始获取群消息！";
-
-            //_group.MemberList = _qrWebWeChat.GETgrouplist(_group.DATAlist, _group.URLlist);
-            _dgvThread = new Thread(dgv2);//获取群成员列表
-            _dgvThread.Start();
-            // GamePlayer
-            timer1.Start();//开奖倒计时
-            timer2.Start();//测试网速
-
-            //更新记录期号加载
-            DateTime time1 = DateTime.Now.Date;
-            DateTime time2 = time1.AddDays(1);
-            DataTable deset = SQLiteHelper.ExecuteDataTable("select 期号  from kaijiang_" + CacheData.Seq + " where Time BETWEEN '" + time1.ToString("yyyy-MM-dd 00:00:00") + "' AND '" + time2.ToString("yyyy-MM-dd 00:00:00") + "'", null);
-            foreach (DataRow dr in deset.Rows)
-            {
-                comboBox5.Items.Add(dr[0].ToString());
-            }
-
-
-            //文本消息配置加载
-            DataTable det = SQLiteHelper.ExecuteDataTable("select * from peizhi where Id=1", null);
-            if (det.Rows.Count == 0)
-            {
-                SQL.INSERT(
-"账单,封盘前,封盘,开奖,实时账单,下注,自定义1,自定义2,自定义3,自定义4,自定义5,倍数,最小,最大",
-"'" + textBox12.Text + "','" + textBox13.Text + "|" + comboBox1.Text + "','" + textBox14.Text + "|" + comboBox6.Text + "','" + textBox15.Text +
-"','" + textBox16.Text + "','" + textBox17.Text + "','" + textBox18.Text + "','" + textBox19.Text + "','" + textBox20.Text +
-"','" + textBox21.Text + "','" + textBox22.Text + "','" + textBox24.Text + "','" + textBox25.Text + "','" + textBox26.Text + "'"
-                , "peizhi");
-            }
-            if (det.Rows.Count == 1)
-            {
-                try
-                {
-                    textBox12.Text = det.Rows[0]["账单"].ToString();
-
-                    textBox13.Text = det.Rows[0]["封盘前"].ToString().Split('|')[0];
-                    textBox14.Text = det.Rows[0]["封盘"].ToString();
-
-                    textBox15.Text = det.Rows[0]["开奖"].ToString();
-                    textBox16.Text = det.Rows[0]["实时账单"].ToString();
-                    textBox17.Text = det.Rows[0]["下注"].ToString();
-
-                    textBox18.Text = det.Rows[0]["自定义1"].ToString();
-                    textBox19.Text = det.Rows[0]["自定义2"].ToString();
-                    textBox20.Text = det.Rows[0]["自定义3"].ToString();
-                    textBox21.Text = det.Rows[0]["自定义4"].ToString();
-                    textBox22.Text = det.Rows[0]["自定义5"].ToString();
-
-                    textBox24.Text = det.Rows[0]["倍数"].ToString();
-                    textBox25.Text = det.Rows[0]["最小"].ToString();
-                    textBox26.Text = det.Rows[0]["最大"].ToString();
-                    //修复数组越界，表中首条数据只有账单字段有值，所以这些字段无需做此分割操作
-                    comboBox1.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘前"].ToString()) ? "" : det.Rows[0]["封盘前"].ToString().Split('|')[1];
-                    comboBox6.Text = String.IsNullOrWhiteSpace(det.Rows[0]["封盘"].ToString()) ? "" : det.Rows[0]["封盘"].ToString().Split('|')[1];
-                }
-                catch (Exception ex)
-                {
-                    MyLogUtil.ErrToLog("初始化主窗口出错，原因：" + ex);
-                    MessageBox.Show(ex.Message);
-                }
-            }
-
-            MainPlugin.frmMain = this;
-            */
+            
         }
 
         public delegate void AddHandler(string a, GROUP b, string MsgId);
@@ -1317,7 +1211,9 @@ namespace WindowsFormsApplication4
 
                     _group.zongjifen = groupMember.lszjf;
                     _group.conter += (con + ";");
-                    _group.benqixiazhu += groupMember.lsxzjf;
+                    //MyLogUtil.ToLogFotTest("本期当前积分："+ _group.benqixiazhu);
+                    //_group.benqixiazhu += groupMember.lsxzjf;
+                    //MyLogUtil.ToLogFotTest("本期下注后积分：" + _group.benqixiazhu);
                     //
                     return 0;
                 }
@@ -2324,6 +2220,7 @@ namespace WindowsFormsApplication4
 
                     //显示更新后积分，获取统计
                     _group.zongyingkui += jp.zongyingkui;
+                    _group.benqiyingkui += jp.benqiyingkui;
                     _group.benqixiazhu += jp.benqixiazhu;
                     lvChengYuanJiFen.Items[jp.Id].SubItems[5].Text = jp.zongjifen.ToString();
                     lvChengYuanJiFen.Items[jp.Id].SubItems[6].Text = jp.zongyingkui.ToString();
@@ -2376,12 +2273,13 @@ namespace WindowsFormsApplication4
 
             KeyVal zcs7 = new KeyVal("总下注积分", _group.benqixiazhu.ToString());
             zcs.Add(zcs7);
-            KeyVal zcs8 = new KeyVal("盈亏", _group.zongyingkui.ToString());
+            KeyVal zcs8 = new KeyVal("盈亏", _group.benqiyingkui.ToString());
             zcs.Add(zcs8);
 
 
             SQL.INSERT(zcs, " kaijiang_" + CacheData.Seq);
-
+            _group.benqiyingkui = 0;
+            _group.benqixiazhu = 0;
             //
             DateTime tim1 = DateTime.Now.Date;
             DateTime tim2 = tim1.AddDays(1);
@@ -2897,6 +2795,7 @@ namespace WindowsFormsApplication4
         {
             if (checkBox3.Checked)//系统设置->图片模式
             {
+                
                 Image image = function.TextToBitmap(xzmx, Color.Black, Color.White);
                 //返回的路径是酷q中指定的路径
                 String imgPath = MyImageUtil.Save(image);
@@ -2909,6 +2808,7 @@ namespace WindowsFormsApplication4
                
                 
                 jzxx(_group, "[图]" + xzmx, ""+msgid);
+                
             }
             else
             {
