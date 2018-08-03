@@ -2747,13 +2747,13 @@ namespace WindowsFormsApplication4
                     //byte[] bytes = _encoding.GetBytes(str);
                     //str3 = _encoding.GetString(bytes, 0, 4);
                     zd += jp.bendibeizhu;
-                    zd += ":" + jp.conter + jp.zongjifen;
+                    zd += ":" + jp.conter +"积分："+ jp.zongjifen+"\n";
                 }
                 else
                 {
                     //byte[] bytes = _encoding.GetBytes(str2);
                     zd += jp.NickNameShort;
-                    zd += ":" + jp.conter + jp.zongjifen+"\n";
+                    zd += ":" + jp.conter +"积分："+ jp.zongjifen+"\n";
                 }
                 /*
                 if (groupNum % 2 == 0)
